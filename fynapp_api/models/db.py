@@ -3,8 +3,17 @@ from flask import current_app
 from pymongo import MongoClient, DESCENDING
 from werkzeug.local import LocalProxy
 
-import hashlib
+# import hashlib
+from werkzeug.security import generate_password_hash, check_password_hash
 
+from flask import request, jsonify
+import uuid
+import jwt
+import datetime
+from functools import wraps
+
+from fynapp_api.util.app_logger import log_debug, log_warning
+from fynapp_api.util.utilities import check_email, standard_error_return
 
 # Este método se encarga de configurar la conexión con la base de datos
 def get_db():
@@ -18,6 +27,8 @@ def get_db():
 # Use LocalProxy to read the global db instance with just `db`
 db = LocalProxy(get_db)
 
+header_token_entry_name = 'x-access-tokens'
+
 
 def test_connection():
     return dumps(db.list_collection_names())
@@ -25,6 +36,46 @@ def test_connection():
 
 def collection_stats(collection_nombre):
     return dumps(db.command('collstats', collection_nombre))
+
+
+# ----------------------- jwt -----------------------
+
+
+def token_required(f):
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        token = None
+        # log_warning( 'token_required | request.headers: {}'.format(request.headers) )
+        if header_token_entry_name in request.headers:
+            token = request.headers[header_token_entry_name]
+        if not token:
+            return standard_error_return('a valid token is missing')
+            # return jsonify({'message': 'a valid token is missing', 'error': True})
+        # log_warning( 'la clave: {}'.format(current_app.config['FYNAPP_SECRET_KEY']) )
+        # log_warning( 'el token: {}'.format(token) )
+        try:
+            data = jwt.decode(token, current_app.config['FYNAPP_SECRET_KEY'], algorithms="HS256")
+            # current_user = fetch_user_raw(users_id=data['public_id'])
+        except:
+            return standard_error_return('token is invalid')
+            # return jsonify({'message': 'token is invalid', 'error': True})
+        # return f(current_user, *args, **kwargs)
+        return f(*args, **kwargs)
+    return decorator
+
+
+def token_encode(user):
+    token = jwt.encode(
+        {
+            'public_id': get_user_id_as_string(user),
+            'exp' : 
+                datetime.datetime.utcnow() + 
+                datetime.timedelta(minutes=30)
+        },
+        current_app.config['FYNAPP_SECRET_KEY'],
+        algorithm="HS256"
+    )
+    return token
 
 # ...
 # ...
@@ -37,7 +88,7 @@ def collection_stats(collection_nombre):
 # Fields:
 #     _id
 #     passcode
-#     firsname
+#     firstname
 #     lastname
 #     creation_date
 #     birthday
@@ -70,22 +121,42 @@ def fetch_users_list(skip, limit):
 
 
 def fetch_user(users_id):
-    return dumps(db.users.find_one({'_id': ObjectId(users_id)}))
+    existing_user = fetch_user_raw(users_id)
+    if not existing_user:
+        return {'error': 'UserId {} doesn\'t exist [FU1].'.format(users_id)}
+    return dumps(existing_user)
+
+
+def fetch_user_raw(users_id):
+    return db.users.find_one({'_id': ObjectId(users_id)})
+
+
+def fetch_user_by_entryname_raw(entry_name, entry_value):
+    return db.users.find_one({entry_name: entry_value})
+
+
+def get_user_id_as_string(user):
+    return str(user['_id'])
 
 
 def create_user(json):
+    if not 'email' in json:
+        return 'error: Email wasn\'t specified [CU1].'
+    if json['email'] == 'foo@baz.com' and not ('pytest_run' in json and json['pytest_run'] == 1):
+        return 'error: User {} is invalid [CU2].'.format(json['email'])
+    if not check_email(json['email']):
+        return 'error: Malformed email {} [CU3].'.format(json['email'])
+    existing_user = fetch_user_by_entryname_raw('email', json['email'])
+    if existing_user:
+        return 'error: User {} already exists [CU4].'.format(json['email'])
     if ('passcode' in json):
         json['passcode'] = encrypt_password(json['passcode'])
-    # if (not 'food_times' in json):
-    #     json['food_times'] = []
-    # if (not 'user_history' in json):
-    #     json['user_history'] = []
     return str(db.users.insert_one(json).inserted_id)
 
 
 def update_users(record):
     updated_record = {
-        'firsname': record['firsname'],
+        'firstname': record['firstname'],
         'lastname': record['lastname'],
         'creation_date': record['creation_date'],
         'birthday': record['birthday'],
@@ -95,19 +166,30 @@ def update_users(record):
         'training_days': record['training_days'],
         'training_hour': record['training_hour'],
     }
-    if ('passcode' in record):
+    if ('passcode' in record and record['passcode']):
         updated_record['passcode'] = encrypt_password(record['passcode'])
     return str(db.users.update_one({'_id': ObjectId(record['_id'])}, {
         '$set': updated_record
     }).modified_count)
 
 
-def encrypt_password(passcode):
-    return hashlib.md5(passcode.encode('utf8')).hexdigest()
-
-
 def delete_user(user_id):
+    existing_user = fetch_user_by_entryname_raw('_id', ObjectId(user_id))
+    if not existing_user:
+        return 'error: User {} doesn\'t exist [DU1].'.format(user_id)
     return str(db.users.delete_one({'_id': ObjectId(user_id)}).deleted_count)
+
+
+# ----- passwords
+
+
+def encrypt_password(passcode):
+    return generate_password_hash(passcode, method='sha256')
+    # return hashlib.md5(passcode.encode('utf8')).hexdigest()
+
+
+def verify_password(user_password, auth_password):
+    return check_password_hash(user_password, auth_password)
 
 
 # ----- food_times
