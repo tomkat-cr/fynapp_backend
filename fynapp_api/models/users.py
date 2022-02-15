@@ -19,38 +19,46 @@ def users_func():
     request_body = request.get_json()
     if request.method == 'POST':
         # Crear user
+        log_warning( 'CU-1) CREATE user | request_body: {}'.format(request_body) )
         result = db.create_user(request_body)
+        log_warning( 'CU-2) Create user | result: {}'.format(result) )
         if result.startswith('error:'):
-            return jsonify({'error': result})
+            return standard_error_return(result, 400)
         return jsonify({'_id': result})
     elif request.method == 'PUT':
         # Actualizar datos del user
+        log_warning( 'UU-1) UPDATE user | request_body: {}'.format(request_body) )
         result = db.update_users(request_body)
+        log_warning( 'UU-2) Update user | result: {}'.format(result) )
         if result.startswith('error:'):
-            return jsonify({'error': result})
+            return standard_error_return(result, 400)
         return jsonify({'updates': result})
     elif request.method == 'DELETE' and user_id is not None:
         # Borrar un user usando el _id
+        log_warning( 'DU-1) DELETE user | user_id: {}'.format(user_id) )
         result = db.delete_user(user_id)
+        log_warning( 'DU-2) Delete user | result: {}'.format(result) )
         if result.startswith('error:'):
-            return jsonify({'error': result})
+            return standard_error_return(result, 400)
         return jsonify({'deletions': result})
     elif user_id is not None:
         # Obtener users por _id
         result = db.fetch_user(user_id)
+        log_warning( 'GO-1) user by id: {} | result: {}'.format(user_id, result) )
         if 'error' in result:
-            return jsonify(result)
+            log_warning( 'GO-2) user by id ERROR | result.error: {}'.format(result['error']) )
+            return standard_error_return(result['error'], 400)
         return jsonify({'user': json.loads(result)})
     else:
         # Obtener users
         skip = (skip, 0)[skip is None]
         limit = (limit, 10)[limit is None]
         result = db.fetch_users_list(skip, limit)
-        log_warning( 'users list | result {}'.format(result) )
+        log_warning( 'GA-1) users list | result {}'.format(result) )
         if 'error' in result:
             # return jsonify(result)
-            log_warning( 'users list ERROR | result.message {}'.format(result.message) )
-            return standard_error_return(result.message)
+            log_warning( 'GA-2) users list ERROR | result.error {}'.format(result['error']) )
+            return standard_error_return(result.message, 400)
         return jsonify({'users': json.loads(result)})
 
 
@@ -89,8 +97,6 @@ def login_user():
     auth = request.authorization
     # log_warning( 'login_user | request: {}'.format(request) )
     # log_warning( 'login_user | auth: {}'.format(auth) )
-    headers = {'WWW.Authentication': 'Basic realm: "login required"'}
-    errorcode = 401
     if not auth or not auth.username or not auth.password:  
         return standard_error_return('could not verify [L1]')
     user = db.fetch_user_by_entryname_raw('email', auth.username)
@@ -134,8 +140,8 @@ def super_admin_create():
             "creation_date": 1635033994,
             "birthday": -131760000,
             "height": "76.0",
-            "tall": "1.70",
             "height_unit": "kg",
+            "tall": "1.70",
             "tall_unit": "meters",
             "training_days": "MTWXFS",
             "training_hour": "17:00"

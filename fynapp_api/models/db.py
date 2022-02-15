@@ -87,12 +87,14 @@ def token_encode(user):
 # PK: _id
 # Fields:
 #     _id
-#     passcode
 #     firstname
 #     lastname
-#     creation_date
-#     birthday
+#     superuser
 #     email
+#     passcode
+#     creation_date
+#     update_date
+#     birthday
 #     height
 #     height_unit
 #     training_days
@@ -124,11 +126,17 @@ def fetch_user(users_id):
     existing_user = fetch_user_raw(users_id)
     if not existing_user:
         return {'error': 'UserId {} doesn\'t exist [FU1].'.format(users_id)}
+    elif 'error' in existing_user:
+        return existing_user
     return dumps(existing_user)
 
 
 def fetch_user_raw(users_id):
-    return db.users.find_one({'_id': ObjectId(users_id)})
+    try:
+        id = ObjectId(users_id)
+    except:
+        return {'error': 'UserId `{}` is invalid [FU2].'.format(users_id)}
+    return db.users.find_one({'_id': id})
 
 
 def fetch_user_by_entryname_raw(entry_name, entry_value):
@@ -151,21 +159,32 @@ def create_user(json):
         return 'error: User {} already exists [CU4].'.format(json['email'])
     if ('passcode' in json):
         json['passcode'] = encrypt_password(json['passcode'])
+    json['creation_date'] = datetime.datetime.utcnow()
     return str(db.users.insert_one(json).inserted_id)
 
 
 def update_users(record):
-    updated_record = {
-        'firstname': record['firstname'],
-        'lastname': record['lastname'],
-        'creation_date': record['creation_date'],
-        'birthday': record['birthday'],
-        'email': record['email'],
-        'height': record['height'],
-        'height_unit': record['height_unit'],
-        'training_days': record['training_days'],
-        'training_hour': record['training_hour'],
+    mandatory_elements = {
+        'firstname',
+        'lastname',
+        'creation_date',
+        'birthday',
+        'email',
+        'height',
+        'height_unit',
+        'training_days',
+        'training_hour',
     }
+    error_message = ''
+    updated_record = dict(record)
+    for element in mandatory_elements:
+        if(element not in record):
+            if(error_message):
+                error_message += ', '
+            error_message += element
+    if error_message:
+        return 'error: Missing mandatory elements: {} [UU1].'.format(error_message)
+    updated_record['update_date'] = datetime.datetime.utcnow()
     if ('passcode' in record and record['passcode']):
         updated_record['passcode'] = encrypt_password(record['passcode'])
     return str(db.users.update_one({'_id': ObjectId(record['_id'])}, {
