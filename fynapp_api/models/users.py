@@ -1,9 +1,9 @@
-from flask import Blueprint, request, jsonify, make_response, current_app
+from flask import Blueprint, request, current_app
 from flask_cors import CORS, cross_origin
 from . import db
 import json
-from fynapp_api.util.app_logger import log_debug, log_warning
-from fynapp_api.util.utilities import standard_error_return, return_resultset_jsonified_or_exception, get_default_resultset
+from fynapp_api.util.app_logger import log_debug
+from fynapp_api.util.utilities import return_resultset_jsonified_or_exception, get_default_resultset
 
 bp = Blueprint('users', __name__, url_prefix='/users')
 
@@ -20,9 +20,9 @@ def users_func():
 
     if request.method == 'POST':
         # Crear user
-        log_warning( 'CU-1) CREATE user | request_body: {}'.format(request_body) )
+        log_debug( 'CU-1) CREATE user | request_body: {}'.format(request_body) )
         result = db.create_user(request_body)
-        log_warning( 'CU-2) Create user | result: {}'.format(result) )
+        log_debug( 'CU-2) Create user | result: {}'.format(result) )
 
         # if result.startswith('error:'):
         #     return standard_error_return(result, 400)
@@ -31,9 +31,9 @@ def users_func():
 
     elif request.method == 'PUT':
         # Actualizar datos del user
-        log_warning( 'UU-1) UPDATE user | request_body: {}'.format(request_body) )
+        log_debug( 'UU-1) UPDATE user | request_body: {}'.format(request_body) )
         result = db.update_users(request_body)
-        log_warning( 'UU-2) Update user | result: {}'.format(result) )
+        log_debug( 'UU-2) Update user | result: {}'.format(result) )
 
         # if result.startswith('error:'):
         #     return standard_error_return(result, 400)
@@ -42,9 +42,9 @@ def users_func():
 
     elif request.method == 'DELETE' and user_id is not None:
         # Borrar un user usando el _id
-        log_warning( 'DU-1) DELETE user | user_id: {}'.format(user_id) )
+        log_debug( 'DU-1) DELETE user | user_id: {}'.format(user_id) )
         result = db.delete_user(user_id)
-        log_warning( 'DU-2) Delete user | result: {}'.format(result) )
+        log_debug( 'DU-2) Delete user | result: {}'.format(result) )
 
         # if result.startswith('error:'):
         #     return standard_error_return(result, 400)
@@ -53,12 +53,12 @@ def users_func():
 
     elif user_id is not None:
         # Obtener users por _id
-        log_warning( 'GO-1) user by id: {}'.format(user_id) )
+        log_debug( 'GO-1) user by id: {}'.format(user_id) )
         result = db.fetch_user(user_id)
-        log_warning( 'GO-2) user by id: {} | result: {}'.format(user_id, result) )
+        log_debug( 'GO-2) user by id: {} | result: {}'.format(user_id, result) )
 
         # if 'error' in result:
-        #     log_warning( 'GO-2) user by id ERROR | result.error: {}'.format(result['error']) )
+        #     log_debug( 'GO-2) user by id ERROR | result.error: {}'.format(result['error']) )
         #     return standard_error_return(result['error'], 400)
         # return jsonify({'user': json.loads(result)})
         return return_resultset_jsonified_or_exception(result)
@@ -68,13 +68,13 @@ def users_func():
         skip = (skip, 0)[skip is None]
         limit = (limit, 10)[limit is None]
 
-        log_warning( 'GA-1) users list | skip: {} | limit: {}'.format(skip, limit) )
+        log_debug( 'GA-1) users list | skip: {} | limit: {}'.format(skip, limit) )
         result = db.fetch_users_list(skip, limit)
-        log_warning( 'GA-2) users list | result {}'.format(result) )
+        log_debug( 'GA-2) users list | result {}'.format(result) )
 
         # if 'error' in result:
         #     # return jsonify(result)
-        #     log_warning( 'GA-2) users list ERROR | result.error {}'.format(result['error']) )
+        #     log_debug( 'GA-2) users list ERROR | result.error {}'.format(result['error']) )
         #     return standard_error_return(result.message, 400)
         # return jsonify({'users': json.loads(result)})
         return return_resultset_jsonified_or_exception(result)
@@ -126,8 +126,8 @@ def login_user():
     result = get_default_resultset()
 
     auth = request.authorization
-    # log_warning( 'login_user | request: {}'.format(request) )
-    # log_warning( 'login_user | auth: {}'.format(auth) )
+    # log_debug( 'login_user | request: {}'.format(request) )
+    # log_debug( 'login_user | auth: {}'.format(auth) )
     if not auth or not auth.username or not auth.password:  
         result['error_message'] = 'could not verify [L1]'
         return return_resultset_jsonified_or_exception(result)
@@ -136,7 +136,7 @@ def login_user():
     if user['error']:
         return return_resultset_jsonified_or_exception(user)
 
-    # log_warning( 'login_user | user[resultset]: {}'.format(user) )
+    # log_debug( 'login_user | user[resultset]: {}'.format(user) )
 
     if user['resultset']:
         if db.verify_password(user['resultset']['passcode'], auth.password):  
@@ -163,7 +163,7 @@ def login_user():
     else:
         result['error_message'] = 'could not verify [L2]'
 
-    log_warning( 'login_user | FINAL result: {}'.format(result) )
+    log_debug( 'login_user | FINAL result: {}'.format(result) )
 
     return return_resultset_jsonified_or_exception(result)
 

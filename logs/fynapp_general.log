@@ -1,0 +1,233 @@
+
+2022-02-19 17:14:31,288 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-02-19 17:14:31,289 - werkzeug - INFO -  * Restarting with stat
+2022-02-19 17:15:31,379 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-02-19 17:15:31,380 - werkzeug - INFO -  * Restarting with stat
+2022-02-19 17:17:01,463 - werkzeug - INFO -  * Restarting with stat
+2022-02-19 17:17:41,164 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-02-19 17:17:41,166 - werkzeug - INFO -  * Restarting with stat
+2022-02-19 17:18:11,258 - werkzeug - INFO -  * Restarting with stat
+2022-02-19 17:18:38,969 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-02-19 17:18:38,971 - werkzeug - INFO -  * Restarting with stat
+2022-02-19 17:19:01,663 - werkzeug - INFO -  * Restarting with stat
+2022-02-19 17:19:26,480 - werkzeug - INFO -  * Restarting with stat
+2022-02-19 17:19:43,780 - werkzeug - INFO -  * Restarting with stat
+2022-02-19 17:19:54,809 - werkzeug - INFO -  * Restarting with stat
+2022-02-19 17:20:16,422 - werkzeug - INFO -  * Restarting with stat
+2022-02-19 17:21:33,320 - werkzeug - INFO -  * Restarting with stat
+2022-02-19 17:21:33,707 - file - WARNING - DEBUG = True
+2022-02-19 17:21:33,709 - file - WARNING - DEBUG = True
+2022-02-19 17:22:12,941 - werkzeug - INFO -  * Restarting with stat
+2022-02-19 17:22:13,295 - file - WARNING - FLASK_DEBUG = 1
+2022-02-19 17:22:13,295 - file - WARNING - DEBUG = True
+2022-02-19 17:22:13,297 - file - WARNING - FLASK_DEBUG = 1
+2022-02-19 17:22:13,297 - file - WARNING - DEBUG = True
+2022-02-19 17:22:15,472 - werkzeug - INFO -  * Restarting with stat
+2022-02-19 17:22:15,739 - file - WARNING - FLASK_DEBUG = 1
+2022-02-19 17:22:15,739 - file - WARNING - DEBUG = True
+2022-02-19 17:22:15,741 - file - WARNING - FLASK_DEBUG = 1
+2022-02-19 17:22:15,741 - file - WARNING - DEBUG = True
+2022-02-19 17:22:18,987 - werkzeug - INFO -  * Restarting with stat
+2022-02-19 17:22:19,253 - file - WARNING - FLASK_DEBUG = 1
+2022-02-19 17:22:19,253 - file - WARNING - DEBUG = True
+2022-02-19 17:22:19,255 - file - WARNING - FLASK_DEBUG = 1
+2022-02-19 17:22:19,255 - file - WARNING - DEBUG = True
+2022-02-19 17:22:26,740 - werkzeug - INFO -  * Restarting with stat
+2022-02-19 17:22:27,010 - file - WARNING - FLASK_DEBUG = 1
+2022-02-19 17:22:27,011 - file - WARNING - DEBUG = True
+2022-02-19 17:22:27,012 - file - WARNING - FLASK_DEBUG = 1
+2022-02-19 17:22:27,012 - file - WARNING - DEBUG = True
+2022-02-19 17:22:31,313 - werkzeug - INFO -  * Restarting with stat
+2022-02-19 17:22:31,577 - file - WARNING - FLASK_DEBUG = 1
+2022-02-19 17:22:31,577 - file - WARNING - DEBUG = True
+2022-02-19 17:22:31,579 - file - WARNING - FLASK_DEBUG = 1
+2022-02-19 17:22:31,579 - file - WARNING - DEBUG = True
+2022-02-19 17:22:43,131 - file - WARNING - FLASK_DEBUG = 0
+2022-02-19 17:22:43,131 - file - WARNING - DEBUG = False
+2022-02-19 17:22:43,133 - file - WARNING - FLASK_DEBUG = 0
+2022-02-19 17:22:43,133 - file - WARNING - DEBUG = False
+2022-02-19 17:22:43,135 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-02-19 17:22:58,443 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:22:58] "OPTIONS /users HTTP/1.1" 200 -
+2022-02-19 17:22:58,448 - file - WARNING - FLASK_DEBUG = 0
+2022-02-19 17:22:58,449 - file - WARNING - DEBUG = False
+2022-02-19 17:22:59,665 - file - WARNING - FLASK_DEBUG = 0
+2022-02-19 17:22:59,665 - file - WARNING - DEBUG = False
+2022-02-19 17:22:59,666 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:22:59] "GET /users HTTP/1.1" 200 -
+2022-02-19 17:23:22,191 - file - WARNING - FLASK_DEBUG = 1
+2022-02-19 17:23:22,191 - file - WARNING - DEBUG = True
+2022-02-19 17:23:22,193 - file - WARNING - FLASK_DEBUG = 1
+2022-02-19 17:23:22,193 - file - WARNING - DEBUG = True
+2022-02-19 17:23:22,198 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-02-19 17:23:22,199 - werkzeug - INFO -  * Restarting with stat
+2022-02-19 17:23:22,464 - file - WARNING - FLASK_DEBUG = 1
+2022-02-19 17:23:22,464 - file - WARNING - DEBUG = True
+2022-02-19 17:23:22,466 - file - WARNING - FLASK_DEBUG = 1
+2022-02-19 17:23:22,466 - file - WARNING - DEBUG = True
+2022-02-19 17:23:44,536 - file - WARNING - FLASK_DEBUG = 1
+2022-02-19 17:23:44,536 - file - WARNING - DEBUG = True
+2022-02-19 17:23:51,712 - file - WARNING - FLASK_DEBUG = 1
+2022-02-19 17:23:51,712 - file - WARNING - DEBUG = True
+2022-02-19 17:23:53,715 - file - WARNING - FLASK_DEBUG = 1
+2022-02-19 17:23:53,717 - file - WARNING - DEBUG = True
+2022-02-19 17:24:11,383 - file - WARNING - FLASK_DEBUG = 0
+2022-02-19 17:24:11,383 - file - WARNING - DEBUG = False
+2022-02-19 17:24:11,385 - file - WARNING - FLASK_DEBUG = 0
+2022-02-19 17:24:11,385 - file - WARNING - DEBUG = False
+2022-02-19 17:24:11,386 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-02-19 17:24:18,978 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:24:18] "OPTIONS /users?id=6210ecf9da90da92a4c88e45 HTTP/1.1" 200 -
+2022-02-19 17:24:18,983 - file - WARNING - FLASK_DEBUG = 0
+2022-02-19 17:24:18,984 - file - WARNING - DEBUG = False
+2022-02-19 17:24:20,091 - file - WARNING - FLASK_DEBUG = 0
+2022-02-19 17:24:20,092 - file - WARNING - DEBUG = False
+2022-02-19 17:24:20,095 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:24:20] "GET /users?id=6210ecf9da90da92a4c88e45 HTTP/1.1" 200 -
+2022-02-19 17:24:26,594 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:24:26] "OPTIONS /users HTTP/1.1" 200 -
+2022-02-19 17:24:26,602 - file - WARNING - FLASK_DEBUG = 0
+2022-02-19 17:24:26,603 - file - WARNING - DEBUG = False
+2022-02-19 17:24:27,495 - file - WARNING - FLASK_DEBUG = 0
+2022-02-19 17:24:27,496 - file - WARNING - DEBUG = False
+2022-02-19 17:24:27,504 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:24:27] "GET /users HTTP/1.1" 200 -
+2022-02-19 17:24:40,259 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:24:40] "OPTIONS /users?id=6210ecf9da90da92a4c88e45 HTTP/1.1" 200 -
+2022-02-19 17:24:40,266 - file - WARNING - FLASK_DEBUG = 0
+2022-02-19 17:24:40,266 - file - WARNING - DEBUG = False
+2022-02-19 17:24:42,106 - file - WARNING - FLASK_DEBUG = 0
+2022-02-19 17:24:42,107 - file - WARNING - DEBUG = False
+2022-02-19 17:24:42,109 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:24:42] "GET /users?id=6210ecf9da90da92a4c88e45 HTTP/1.1" 200 -
+2022-02-19 17:24:52,021 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-02-19 17:24:57,253 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:24:57] "OPTIONS /users HTTP/1.1" 200 -
+2022-02-19 17:24:58,567 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:24:58] "GET /users HTTP/1.1" 200 -
+2022-02-19 17:25:03,723 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:25:03] "OPTIONS /users?id=619e2b8542870d374ced499d HTTP/1.1" 200 -
+2022-02-19 17:25:04,578 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:25:04] "GET /users?id=619e2b8542870d374ced499d HTTP/1.1" 200 -
+2022-02-19 17:25:09,385 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:25:09] "OPTIONS /users HTTP/1.1" 200 -
+2022-02-19 17:25:10,755 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:25:10] "GET /users HTTP/1.1" 200 -
+2022-02-19 17:25:10,805 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:25:10] "OPTIONS /users?id=620b14f6022dfe011018ccb0 HTTP/1.1" 200 -
+2022-02-19 17:25:11,965 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:25:11] "GET /users?id=620b14f6022dfe011018ccb0 HTTP/1.1" 200 -
+2022-02-19 17:25:45,574 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-02-19 17:25:50,603 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:25:50] "OPTIONS /users HTTP/1.1" 200 -
+2022-02-19 17:25:51,510 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:25:51] "GET /users HTTP/1.1" 200 -
+2022-02-19 17:25:51,998 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:25:51] "OPTIONS /users?id=6210ecf9da90da92a4c88e45 HTTP/1.1" 200 -
+2022-02-19 17:25:53,470 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:25:53] "GET /users?id=6210ecf9da90da92a4c88e45 HTTP/1.1" 200 -
+2022-02-19 17:25:58,642 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:25:58] "OPTIONS /users HTTP/1.1" 200 -
+2022-02-19 17:25:59,524 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:25:59] "GET /users HTTP/1.1" 200 -
+2022-02-19 17:26:09,307 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:26:09] "OPTIONS /users?id=620fea976d86c0af6fa9c9a5 HTTP/1.1" 200 -
+2022-02-19 17:26:10,453 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:26:10] "GET /users?id=620fea976d86c0af6fa9c9a5 HTTP/1.1" 200 -
+2022-02-19 17:26:21,663 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:26:21] "OPTIONS /users HTTP/1.1" 200 -
+2022-02-19 17:26:22,943 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:26:22] "PUT /users HTTP/1.1" 200 -
+2022-02-19 17:26:23,869 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:26:23] "GET /users HTTP/1.1" 200 -
+2022-02-19 17:52:21,943 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-02-19 17:52:30,878 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:52:30] "OPTIONS /users?id=6210ecf9da90da92a4c88e45 HTTP/1.1" 200 -
+2022-02-19 17:52:31,994 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:52:31] "GET /users?id=6210ecf9da90da92a4c88e45 HTTP/1.1" 200 -
+2022-02-19 17:52:36,689 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:52:36] "OPTIONS /users HTTP/1.1" 200 -
+2022-02-19 17:52:37,746 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:52:37] "GET /users HTTP/1.1" 200 -
+2022-02-19 17:52:58,594 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-02-19 17:53:04,119 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:53:04] "OPTIONS /users?id=6210ecf9da90da92a4c88e45 HTTP/1.1" 200 -
+2022-02-19 17:53:05,030 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:53:05] "GET /users?id=6210ecf9da90da92a4c88e45 HTTP/1.1" 200 -
+2022-02-19 17:53:08,245 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:53:08] "OPTIONS /users HTTP/1.1" 200 -
+2022-02-19 17:53:09,309 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:53:09] "GET /users HTTP/1.1" 200 -
+2022-02-19 17:54:34,452 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-02-19 17:54:34,454 - werkzeug - INFO -  * Restarting with stat
+2022-02-19 17:55:06,473 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-02-19 17:55:10,522 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:55:10] "OPTIONS /users?id=6210ecf9da90da92a4c88e45 HTTP/1.1" 200 -
+2022-02-19 17:55:10,528 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:55:10] "[31m[1mGET /users?id=6210ecf9da90da92a4c88e45 HTTP/1.1[0m" 401 -
+2022-02-19 17:55:29,743 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:55:29] "OPTIONS /users HTTP/1.1" 200 -
+2022-02-19 17:55:29,748 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:55:29] "[31m[1mGET /users HTTP/1.1[0m" 401 -
+2022-02-19 17:55:42,379 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:55:42] "OPTIONS /users/login HTTP/1.1" 200 -
+2022-02-19 17:55:43,165 - file - WARNING - Unexpected err=OperationFailure("bad auth : Authentication failed., full error: {'ok': 0, 'errmsg': 'bad auth : Authentication failed.', 'code': 8000, 'codeName': 'AtlasError'}"), type(err)=<class 'pymongo.errors.OperationFailure'> message_code=''
+2022-02-19 17:55:43,166 - file - WARNING - (<class 'pymongo.errors.OperationFailure'>, OperationFailure("bad auth : Authentication failed., full error: {'ok': 0, 'errmsg': 'bad auth : Authentication failed.', 'code': 8000, 'codeName': 'AtlasError'}"), <traceback object at 0x10f532e00>)
+2022-02-19 17:55:43,168 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 17:55:43] "[31m[1mPOST /users/login HTTP/1.1[0m" 400 -
+2022-02-19 18:01:10,836 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-02-19 18:02:36,794 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 18:02:36] "OPTIONS /users/login HTTP/1.1" 200 -
+2022-02-19 18:02:37,537 - file - WARNING - Unexpected err=OperationFailure("bad auth : Authentication failed., full error: {'ok': 0, 'errmsg': 'bad auth : Authentication failed.', 'code': 8000, 'codeName': 'AtlasError'}"), type(err)=<class 'pymongo.errors.OperationFailure'> message_code=''
+2022-02-19 18:02:37,550 - file - WARNING - Traceback (most recent call last):
+  File "/usr/local/Cellar/python@3.9/3.9.10/Frameworks/Python.framework/Versions/3.9/lib/python3.9/threading.py", line 930, in _bootstrap
+    self._bootstrap_inner()
+  File "/usr/local/Cellar/python@3.9/3.9.10/Frameworks/Python.framework/Versions/3.9/lib/python3.9/threading.py", line 973, in _bootstrap_inner
+    self.run()
+  File "/usr/local/Cellar/python@3.9/3.9.10/Frameworks/Python.framework/Versions/3.9/lib/python3.9/threading.py", line 910, in run
+    self._target(*self._args, **self._kwargs)
+  File "/usr/local/Cellar/python@3.9/3.9.10/Frameworks/Python.framework/Versions/3.9/lib/python3.9/socketserver.py", line 683, in process_request_thread
+    self.finish_request(request, client_address)
+  File "/usr/local/Cellar/python@3.9/3.9.10/Frameworks/Python.framework/Versions/3.9/lib/python3.9/socketserver.py", line 360, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/local/Cellar/python@3.9/3.9.10/Frameworks/Python.framework/Versions/3.9/lib/python3.9/socketserver.py", line 747, in __init__
+    self.handle()
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/werkzeug/serving.py", line 342, in handle
+    BaseHTTPRequestHandler.handle(self)
+  File "/usr/local/Cellar/python@3.9/3.9.10/Frameworks/Python.framework/Versions/3.9/lib/python3.9/http/server.py", line 427, in handle
+    self.handle_one_request()
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/werkzeug/serving.py", line 374, in handle_one_request
+    self.run_wsgi()
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/werkzeug/serving.py", line 319, in run_wsgi
+    execute(self.server.app)
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/werkzeug/serving.py", line 308, in execute
+    application_iter = app(environ, start_response)
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/flask/cli.py", line 357, in __call__
+    return self._app(environ, start_response)
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/flask/app.py", line 2091, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/flask/app.py", line 2073, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/flask/app.py", line 1516, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/flask/app.py", line 1502, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/flask_cors/decorator.py", line 128, in wrapped_function
+    resp = make_response(f(*args, **kwargs))
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/fynapp_api/models/users.py", line 135, in login_user
+    user = db.fetch_user_by_entryname_raw('email', auth.username)
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/fynapp_api/models/db.py", line 193, in fetch_user_by_entryname_raw
+    resultset['error_message'] = get_standard_base_exception_msg(err, 'FUBEN1')
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/fynapp_api/models/db.py", line 191, in fetch_user_by_entryname_raw
+    resultset['resultset'] = db.users.find_one({entry_name: entry_value})
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/pymongo/collection.py", line 1114, in find_one
+    for result in cursor.limit(-1):
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/pymongo/cursor.py", line 1159, in next
+    if len(self.__data) or self._refresh():
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/pymongo/cursor.py", line 1080, in _refresh
+    self.__send_message(q)
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/pymongo/cursor.py", line 971, in __send_message
+    response = client._run_operation(
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/pymongo/mongo_client.py", line 1215, in _run_operation
+    return self._retryable_read(
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/pymongo/mongo_client.py", line 1307, in _retryable_read
+    with self._secondaryok_for_server(read_pref, server, session) as (
+  File "/usr/local/Cellar/python@3.9/3.9.10/Frameworks/Python.framework/Versions/3.9/lib/python3.9/contextlib.py", line 119, in __enter__
+    return next(self.gen)
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/pymongo/mongo_client.py", line 1162, in _secondaryok_for_server
+    with self._get_socket(server, session) as sock_info:
+  File "/usr/local/Cellar/python@3.9/3.9.10/Frameworks/Python.framework/Versions/3.9/lib/python3.9/contextlib.py", line 119, in __enter__
+    return next(self.gen)
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/pymongo/mongo_client.py", line 1099, in _get_socket
+    with server.get_socket(
+  File "/usr/local/Cellar/python@3.9/3.9.10/Frameworks/Python.framework/Versions/3.9/lib/python3.9/contextlib.py", line 119, in __enter__
+    return next(self.gen)
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/pymongo/pool.py", line 1371, in get_socket
+    sock_info = self._get_socket(all_credentials)
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/pymongo/pool.py", line 1483, in _get_socket
+    sock_info = self.connect(all_credentials)
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/pymongo/pool.py", line 1337, in connect
+    sock_info.check_auth(all_credentials)
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/pymongo/pool.py", line 814, in check_auth
+    self.authenticate(credentials)
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/pymongo/pool.py", line 831, in authenticate
+    auth.authenticate(credentials, self)
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/pymongo/auth.py", line 548, in authenticate
+    auth_func(credentials, sock_info)
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/pymongo/auth.py", line 469, in _authenticate_default
+    return _authenticate_scram(credentials, sock_info, 'SCRAM-SHA-1')
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/pymongo/auth.py", line 205, in _authenticate_scram
+    res = sock_info.command(source, cmd)
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/pymongo/pool.py", line 719, in command
+    return command(self, dbname, spec, secondary_ok,
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/pymongo/network.py", line 158, in command
+    helpers._check_command_response(
+  File "/Users/carlosramirez/desarrollo/mediabros_repos/fynapp_backend/venv/lib/python3.9/site-packages/pymongo/helpers.py", line 170, in _check_command_response
+    raise OperationFailure(errmsg, code, response, max_wire_version)
+pymongo.errors.OperationFailure: bad auth : Authentication failed., full error: {'ok': 0, 'errmsg': 'bad auth : Authentication failed.', 'code': 8000, 'codeName': 'AtlasError'}
+
+2022-02-19 18:02:37,552 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 18:02:37] "[31m[1mPOST /users/login HTTP/1.1[0m" 400 -
+2022-02-19 18:03:16,776 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-02-19 18:05:46,666 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-02-19 18:05:46,668 - werkzeug - INFO -  * Restarting with stat
+2022-02-19 18:06:18,458 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-02-19 18:06:22,899 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 18:06:22] "OPTIONS /users?id=6210ecf9da90da92a4c88e45 HTTP/1.1" 200 -
+2022-02-19 18:06:23,761 - werkzeug - INFO - 127.0.0.1 - - [19/Feb/2022 18:06:23] "GET /users?id=6210ecf9da90da92a4c88e45 HTTP/1.1" 200 -

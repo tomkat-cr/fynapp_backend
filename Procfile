@@ -1,0 +1,1 @@
+web: gunicorn -b 0.0.0.0:$PORT --log-level debug -w 4 'fynapp_api.__init__:create_app()'
