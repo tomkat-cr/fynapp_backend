@@ -1,5 +1,5 @@
 # FynApp Backend
-FynApp es una aplicación de gestión para lograr objetivos de alimentación adecuada y mantener un mejor estilo de vida  basada en buena actividad física.
+FynApp es una aplicación de gestión para lograr objetivos de alimentación adecuada y mantener un mejor estilo de vida basada en constante actividad física.
 2021-10-16 | CR
 
 ## Iniciar el sistema

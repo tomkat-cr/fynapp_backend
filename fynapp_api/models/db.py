@@ -44,13 +44,13 @@ def token_required(f):
     @wraps(f)
     def decorator(*args, **kwargs):
         token = None
-        # log_warning( 'token_required | request.headers: {}'.format(request.headers) )
+        # log_debug( 'token_required | request.headers: {}'.format(request.headers) )
         if header_token_entry_name in request.headers:
             token = request.headers[header_token_entry_name]
         if not token:
             return standard_error_return('a valid token is missing')
-        # log_warning( 'la clave: {}'.format(current_app.config['FYNAPP_SECRET_KEY']) )
-        # log_warning( 'el token: {}'.format(token) )
+        # log_debug( 'la clave: {}'.format(current_app.config['FYNAPP_SECRET_KEY']) )
+        # log_debug( 'el token: {}'.format(token) )
         try:
             data = jwt.decode(token, current_app.config['FYNAPP_SECRET_KEY'], algorithms="HS256")
             # current_user = fetch_user_raw(users_id=data['public_id'])
@@ -197,7 +197,7 @@ def fetch_user_by_entryname_raw(entry_name, entry_value):
 
 
 def get_user_id_as_string(user):
-    # log_warning( 'get_user_id_as_string) user[]: {}'.format(user) )
+    # log_debug( 'get_user_id_as_string) user[]: {}'.format(user) )
     return str(user['_id'])
 
 
