@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  fynapp_backend:
+    container_name: fynapp_backend
+    image: mediabros/fynapp_backend:v${APP_VERSION}-amd64
+    ports:
+      - 5000:5000
+    expose:
+      - 5000
+    environment:
+      - FLASK_APP=$FLASK_APP
+      - FLASK_ENV=$FLASK_ENV
+      - FLASK_DEBUG=$FLASK_DEBUG
+      - FYNAPP_DB_NAME=$FYNAPP_DB_NAME
+      - FYNAPP_DB_URI=$FYNAPP_DB_URI
+      - FYNAPP_SECRET_KEY=$FYNAPP_SECRET_KEY
