@@ -16,3 +16,5 @@ build/
 report.xml
 
 .env
+.env.local
+logs/fynapp_general.log

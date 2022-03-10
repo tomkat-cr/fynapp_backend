@@ -1,24 +1,66 @@
-image: node:latest
+image: docker:git
 
-before_script:
-    - apt-get update -qy
-    - apt-get install -y ruby-dev
-    - gem install dpl
+services:
+- docker:dind
 
 stages:
-    - staging
-    - production
+    - qa-vps
+    - staging-heroku
+    - production-heroku
 
-staging:
-    stage: staging
+staging-heroku:
+    stage: staging-heroku
     image: ruby:latest
     script:
+        - apt-get update -qy
+        - apt-get install -y ruby-dev
+        - gem install dpl
         - dpl --provider=heroku --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY
     when: manual
 
-production:
-    stage: production
+production-heroku:
+    stage: production-heroku
     image: ruby:latest
     script:
+        - apt-get update -qy
+        - apt-get install -y ruby-dev
+        - gem install dpl
         - dpl --provider=heroku --app=$HEROKU_APP_PRODUCTION --api-key=$HEROKU_API_KEY
     when: manual
+
+qa-vps-build-push:
+    stage: qa-vps
+    script:
+        - export APP_VERSION="`cat "version.txt"`"
+        - apk add --no-cache --update python3 py3-pip gcc libpq-dev python3-dev musl-dev cairo-dev
+        - pip install pipenv
+        - pipenv install
+        - sh scripts/docker_build.sh "$APP_VERSION"
+        - sh scripts/docker_push.sh "$DOCKER_ACCOUNT" "$DOCKER_PASSWORD" "$APP_VERSION"
+    when: manual
+
+qa-vps-deploy:
+    stage: qa-vps
+    script:
+        - export APP_VERSION="`cat "version.txt"`"
+        - echo $APP_VERSION
+        # -
+        - apk add --update rsync
+        # -
+        - 'command -v ssh-agent >/dev/null || ( apk add --update openssh-client )'
+        - eval $(ssh-agent -s)
+        - echo "$VPS_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+        - mkdir -p /root/.ssh
+        - chmod 700 /root/.ssh
+        # -
+        - export LOCAL_PRIVATE_KEY_PATH="/root/.ssh/id_rsa_${VPS_USER}_${VPS_NAME}"
+        - echo "$VPS_PRIVATE_KEY" | tr -d '\r' > tmp_ppk
+        - cp tmp_ppk "$LOCAL_PRIVATE_KEY_PATH"
+        - chmod 700 "$LOCAL_PRIVATE_KEY_PATH"
+        - ls -lah /root/.ssh
+        # -
+        - sh scripts/vps/deploy_to_vps.sh "$APP_VERSION" "$VPS_USER" "$VPS_NAME" "$VPS_PORT" "$LOCAL_PRIVATE_KEY_PATH"
+    when: manual
+    # tags:
+    #     # If there's a need to use our own gitlab runner:
+    #     - fynapp-runner

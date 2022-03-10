@@ -1,0 +1,11 @@
+# File: fynapp_frontend/deployment/.dockerignore
+# 2022-02-25 | CR
+
+node_modules
+npm-debug.log
+
+.pytest_cache
+instance
+venv
+.env
+logs
