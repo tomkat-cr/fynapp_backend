@@ -5,13 +5,13 @@
 #
 # Especifica donde esta este script, que debe ser el directorio del repositorio...
 cd "`dirname "$0"`" ;
-SCRIPTS_DIR="`pwd`" ;
+SCRIPTS_DIR="`pwd`/.." ;
 #
 export FYNAPP_MONGO_REPO_BASEDIR="${SCRIPTS_DIR}"
 #
 # Credenciales desde un .env (deberian ir mas bien en un "Vault")
 if [ -f "${SCRIPTS_DIR}/.env" ]; then
-    set -o allexport; source "${SCRIPTS_DIR}/.env"; set +o allexport ;
+    set -o allexport; . "${SCRIPTS_DIR}/.env"; set +o allexport ;
 fi
 if [[ "${FYNAPP_DB_USR_PSW}" == "" ]]; then 
     # Si no encontro las credenciales en el .env, intenta sacarlas de 1Password

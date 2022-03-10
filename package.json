@@ -16,7 +16,8 @@
   },
   "scripts": {
     "test": "python -m pytest",
-    "start": "flask run"
+    "start-dev": "flask run",
+    "start": "sh scripts/run_server.sh"
   },
   "engines": {
     "node": "16.9.1",

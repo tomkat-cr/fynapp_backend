@@ -64,10 +64,10 @@ deploy: requirements config
 local: config cleanLogs
 	# saml2aws login -a Mediabros-Dev
 	# saml2aws exec -a Mediabros-Dev "pipenv run chalice local --port 8980"
-	sh run_fynapp_backend.sh
+	sh scripts/run_fynapp_backend.sh
 
 server: local
 
 api: config cleanLogs
 	# ./scripts/run_local.sh
-	sh run_server.sh
+	sh scripts/run_server.sh

@@ -9,4 +9,3 @@ pip3 install -r requirements.txt
 pip install pytest coverage
 python -m pytest
 deactivate
-
