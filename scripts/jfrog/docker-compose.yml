@@ -1,0 +1,38 @@
+# File: fynapp_backend/scripts/jfrog/docker-compose.yml
+# docker-compose.yml para fynapp_backend, para poder hacer el jfrog npm install, build y publish del artefacto con una version especifica de node que no se puede instalar en el mac con
+version: "3"
+
+services:
+  jfrog_fynapp_backend:
+    container_name: jfrog_fynapp_backend
+    # image: node:15
+    image: node:16
+    # platform: linux/x86_64
+    ports:
+      - 3001:3001
+    expose:
+      - 3001
+    environment:
+      # from .env
+      - GITLAB_ACCESS_TOKEN=$GITLAB_ACCESS_TOKEN
+      - GIT_REPO_BRANCH=$GIT_REPO_BRANCH
+      - ARTIFACTORY_SERVER_ID=$ARTIFACTORY_SERVER_ID
+      - JFROG_ACCESS_TOKEN=$JFROG_ACCESS_TOKEN
+      - JFROG_URL=$JFROG_URL
+      - ARTIFACTORY_REPO=$ARTIFACTORY_REPO
+      - ARTIFACTORY_BUILD_NUMBER=$ARTIFACTORY_BUILD_NUMBER
+      - ARTIFACTORY_REPO_AUTH=$ARTIFACTORY_REPO_AUTH
+      - ARTIFACTORY_EMAIL=$ARTIFACTORY_EMAIL
+      - PYPI_USERNAME=$PYPI_USERNAME
+      - PYPI_PASSWORD=$PYPI_PASSWORD
+      # defined here
+      - REACT_APP_API_URL=http://127.0.0.1:5000
+      - GIT_REPO_PREFIX=gitlab.com/mediabros-apps
+      - GIT_REPO_NAME=fynapp_backend
+    volumes:
+      - ./:/var/scripts
+    # esto es lo que lo mantiene vivo
+    tty: true
+    command:
+      # - bash
+      - docker-entrypoint.sh

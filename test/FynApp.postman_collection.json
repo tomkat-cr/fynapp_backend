@@ -1,0 +1,412 @@
+{
+	"info": {
+		"_postman_id": "c9fb9f13-e11e-4afe-91ef-455ee2cbc2f0",
+		"name": "FynApp",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Login Usuario",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "super@fynapp.com",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "12345678",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"password\": \"12345678\",\n    \"username\": \"foo@baz.com\"\n}"
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/users/login",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"users",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Usuarios",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-access-tokens",
+						"value": "{{FYNAPP_SESION_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"pospoe\": \"Carlos\",\n    \"lastname\": \"Ramirez\",\n    \"passcode\": \"12345678\",\n    \"creation_date\": 1635033994,\n    \"birthday\": -131760000,\n    \"email\": \"foo@baz.com\",\n    \"height\": \"76.0\",\n    \"tall\": \"1.70\",\n    \"height_unit\": \"kg\",\n    \"tall_unit\": \"meters\",\n    \"training_days\": \"MTWXFS\",\n    \"training_hour\": \"17:00\"\n}"
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/users",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Super Usuario",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "super@fynapp.com",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{FYNAPP_SUPAD_PSW}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/users/supad-create",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"users",
+						"supad-create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Consultar users",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-access-tokens",
+						"value": "{{FYNAPP_SESION_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:5000/users?limit=5&skip=0",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"users"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "5"
+						},
+						{
+							"key": "skip",
+							"value": "0"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Test users",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-access-tokens",
+						"value": "{{FYNAPP_SESION_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:5000/users/test",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"users",
+						"test"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Consultar users por _id",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-access-tokens",
+						"value": "{{FYNAPP_SESION_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [],
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/users?id=6180958b910b409a6c6aeb97",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"users"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "6180958b910b409a6c6aeb97"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar users",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "x-access-tokens",
+						"value": "{{FYNAPP_SESION_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"_id\": \"6174c5381c1068cef3926d15\",\n    \"firstname\": \"Jose\",\n    \"lastname\": \"Divo\",\n    \"passcode\": \"87654321\",\n    \"creation_date\": 1635033994,\n    \"birthday\": -131760000,\n    \"email\": \"foo@baz.com\",\n    \"height\": \"76.0\",\n    \"tall\": \"1.70\",\n    \"height_unit\": \"kg\",\n    \"tall_unit\": \"meters\",\n    \"training_days\": \"MTWXFS\",\n    \"training_hour\": \"17:00\"\n}"
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/users",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Borrar user",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "x-access-tokens",
+						"value": "{{FYNAPP_SESION_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:5000/users?id=6180958b910b409a6c6aeb97&=",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"users"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "6180958b910b409a6c6aeb97"
+						},
+						{
+							"key": "",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Agregar food_time a user",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "x-access-tokens",
+						"value": "{{FYNAPP_SESION_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_id\": \"new_user_id\",\n    \"food_times\": {\n        \"food_moment_id\": \"test_food_moment_id\",\n        \"food_time\": \"12:00\"\n    }\n}"
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/users/add-food-times-to-user?=",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"users",
+						"add-food-times-to-user"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "FYNAPP_SESION_TOKEN",
+			"value": ""
+		},
+		{
+			"key": "FYNAPP_SUPAD_PSW",
+			"value": ""
+		}
+	]
+}
