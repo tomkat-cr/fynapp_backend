@@ -15,7 +15,7 @@ if [ -f "${SCRIPTS_DIR}/.env" ]; then
 fi
 if [[ "${FYNAPP_DB_USR_PSW}" == "" ]]; then 
     # Si no encontro las credenciales en el .env, intenta sacarlas de 1Password
-    OP_ENTRY_NAME_MONGO_CREDS="MongoDB Atlas MBI Fynapp-dev Admin"
+    OP_ENTRY_NAME_MONGO_CREDS="MongoDB Atlas MBI Fynapp-Dev Admin"
     OP_ENTRY_NAME_FYNAPP_SECRET_KEY="Fynapp Secret Key JWT"
     # Verifica si hay una sesion abierta de 1Password, si no, login.
     while [[ "${OP_SESSION_my}" == "" ]]; do

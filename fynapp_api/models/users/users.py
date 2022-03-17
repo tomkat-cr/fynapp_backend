@@ -1,15 +1,19 @@
 from flask import Blueprint, request, current_app
-from flask_cors import CORS, cross_origin
-from . import db
+from flask_cors import cross_origin
 import json
+
+from . import db
 from fynapp_api.util.app_logger import log_debug
+from fynapp_api.util.jwt import token_required, token_encode
+from fynapp_api.util.passwords import verify_password, encrypt_password
 from fynapp_api.util.utilities import return_resultset_jsonified_or_exception, get_default_resultset
+
 
 bp = Blueprint('users', __name__, url_prefix='/users')
 
 
 @bp.route('', methods=['GET', 'POST', 'PUT', 'DELETE'])
-@db.token_required
+@token_required
 @cross_origin(supports_credentials=True)
 def users_func():
 
@@ -23,10 +27,6 @@ def users_func():
         log_debug( 'CU-1) CREATE user | request_body: {}'.format(request_body) )
         result = db.create_user(request_body)
         log_debug( 'CU-2) Create user | result: {}'.format(result) )
-
-        # if result.startswith('error:'):
-        #     return standard_error_return(result, 400)
-        # return jsonify({'_id': result})
         return return_resultset_jsonified_or_exception(result)
 
     elif request.method == 'PUT':
@@ -34,10 +34,6 @@ def users_func():
         log_debug( 'UU-1) UPDATE user | request_body: {}'.format(request_body) )
         result = db.update_users(request_body)
         log_debug( 'UU-2) Update user | result: {}'.format(result) )
-
-        # if result.startswith('error:'):
-        #     return standard_error_return(result, 400)
-        # return jsonify({'updates': result})
         return return_resultset_jsonified_or_exception(result)
 
     elif request.method == 'DELETE' and user_id is not None:
@@ -45,10 +41,6 @@ def users_func():
         log_debug( 'DU-1) DELETE user | user_id: {}'.format(user_id) )
         result = db.delete_user(user_id)
         log_debug( 'DU-2) Delete user | result: {}'.format(result) )
-
-        # if result.startswith('error:'):
-        #     return standard_error_return(result, 400)
-        # return jsonify({'deletions': result})
         return return_resultset_jsonified_or_exception(result)
 
     elif user_id is not None:
@@ -56,67 +48,80 @@ def users_func():
         log_debug( 'GO-1) user by id: {}'.format(user_id) )
         result = db.fetch_user(user_id)
         log_debug( 'GO-2) user by id: {} | result: {}'.format(user_id, result) )
-
-        # if 'error' in result:
-        #     log_debug( 'GO-2) user by id ERROR | result.error: {}'.format(result['error']) )
-        #     return standard_error_return(result['error'], 400)
-        # return jsonify({'user': json.loads(result)})
         return return_resultset_jsonified_or_exception(result)
 
     else:
         # Obtener lista de users
         skip = (skip, 0)[skip is None]
         limit = (limit, 10)[limit is None]
-
         log_debug( 'GA-1) users list | skip: {} | limit: {}'.format(skip, limit) )
         result = db.fetch_users_list(skip, limit)
         log_debug( 'GA-2) users list | result {}'.format(result) )
-
-        # if 'error' in result:
-        #     # return jsonify(result)
-        #     log_debug( 'GA-2) users list ERROR | result.error {}'.format(result['error']) )
-        #     return standard_error_return(result.message, 400)
-        # return jsonify({'users': json.loads(result)})
         return return_resultset_jsonified_or_exception(result)
 
 
-@bp.route('/add-food-times-to-user', methods=['PUT', 'DELETE'])
-@db.token_required
+@bp.route('/user-food-times', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@token_required
 @cross_origin(supports_credentials=True)
 def add_food_times():
+    user_id = request.args.get('user_id')
+    food_moment_id = request.args.get('food_moment_id')
+    food_time = request.args.get('food_time')
+    skip = request.args.get('skip')
+    limit = request.args.get('limit')
     request_body = request.get_json()
-    if request.method == 'PUT':
-        # return jsonify({'updates': db.add_food_times_to_user(request_body)})
+    filters = {}
+    if food_moment_id != None:
+        filters['food_moment_id'] = food_moment_id
+    if food_time != None:
+        filters['food_time'] = food_time
+
+    # Create
+    if request.method == 'POST':
+
+        log_debug( '>>> add_food_times | PUT request_body = {}'.format(request_body) )
         return return_resultset_jsonified_or_exception(db.add_food_times_to_user(request_body))
-    elif request.method == 'DELETE':
-        # return jsonify({'deletions': db.remove_food_times_to_user(request_body)})
+    
+    # Delete
+    if request.method == 'DELETE':
+
+        log_debug( '>>> add_food_times | DELETE request_body = {}'.format(request_body) )
         return return_resultset_jsonified_or_exception(db.remove_food_times_to_user(request_body))
 
+    # List
+    if request.method == 'GET':
 
-@bp.route('/add-user-history-to-user', methods=['PUT', 'DELETE'])
-@db.token_required
+        # Get the list (paginated) or one especific element
+        return return_resultset_jsonified_or_exception(db.fetch_user_food_times(user_id, filters, skip, limit))
+
+    # Modify
+    if request.method == 'PUT':
+
+        # When one element needs to bee modified, first remove it, then add it again
+        log_debug( '>>> add_food_times | POST request_body = {}'.format(request_body) )
+        remove_operation_result = db.remove_food_times_to_user(request_body)
+        if remove_operation_result['error']:
+            return return_resultset_jsonified_or_exception(remove_operation_result)
+        return return_resultset_jsonified_or_exception(db.add_food_times_to_user(request_body))
+
+
+@bp.route('/user-user-history', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@token_required
 @cross_origin(supports_credentials=True)
 def add_user_history():
     request_body = request.get_json()
     if request.method == 'PUT':
-        # return jsonify({'updates': db.add_user_history_to_user(request_body)})
         return return_resultset_jsonified_or_exception(db.add_user_history_to_user(request_body))
     elif request.method == 'DELETE':
-        # return jsonify({'deletions': db.remove_user_history_to_user(request_body)})
         return return_resultset_jsonified_or_exception(db.remove_user_history_to_user(request_body))
 
 
 @bp.route('/test')
-@db.token_required
+@token_required
 @cross_origin(supports_credentials=True)
 def test_connection():
-    # return jsonify({'collections': json.loads(db.test_connection())})
     result = get_default_resultset()
     result['resultset']['collections'] = json.loads(db.test_connection())
-    # try:
-    # except BaseException as err:
-    #     resultset['error_message'] = get_standard_base_exception_msg(err, 'XX')
-    #     resultset['error'] = True
     return return_resultset_jsonified_or_exception(result)
 
 
@@ -139,17 +144,8 @@ def login_user():
     # log_debug( 'login_user | user[resultset]: {}'.format(user) )
 
     if user['resultset']:
-        if db.verify_password(user['resultset']['passcode'], auth.password):  
-            token = db.token_encode(user['resultset'])
-            # return jsonify({'token' : token.decode('UTF-8')})
-            # return jsonify({
-            #     'token' : token,
-            #     '_id': db.get_user_id_as_string(user),
-            #     'firstname': user['firstname'],
-            #     'lastname': user['lastname'],
-            #     'email': user['email'],
-            #     'username': user['email'],
-            # })
+        if verify_password(user['resultset']['passcode'], auth.password):  
+            token = token_encode(user['resultset'])
             result['resultset'] = {
                 'token' : token,
                 '_id': db.get_user_id_as_string(user['resultset']),
@@ -168,6 +164,23 @@ def login_user():
     return return_resultset_jsonified_or_exception(result)
 
 
+@bp.route('/pas-enc', methods=['POST'])
+@token_required
+@cross_origin(supports_credentials=True)
+def password_encripted():
+    request_body = request.get_json()
+    result = get_default_resultset()
+    result['resultset'] = {}
+    if request_body.get('passwd', None) != None:
+        result['resultset'] = {
+            # 'orig_pass': request_body.get('passwd'),
+            'enc_pass': encrypt_password(request_body.get('passwd'))
+        }
+    else:
+        result['error_message'] = 'Parameter not received [PSEN1]'
+    return return_resultset_jsonified_or_exception(result)
+
+
 @bp.route('/supad-create', methods=['POST'])  
 def super_admin_create():
     result = get_default_resultset()
@@ -177,7 +190,7 @@ def super_admin_create():
         result['error_message'] = 'could not verify [SAC1]'
     elif auth.username != current_app.config['FYNAPP_SUPERADMIN_EMAIL']:
         result['error_message'] = 'could not verify [SAC2]'
-    elif not db.verify_password(db.encrypt_password(current_app.config['FYNAPP_SECRET_KEY']), auth.password):
+    elif not verify_password(encrypt_password(current_app.config['FYNAPP_SECRET_KEY']), auth.password):
         result['error_message'] = 'could not verify [SAC3]'
 
     if result['error_message']:
@@ -209,7 +222,6 @@ def super_admin_create():
             "training_hour": "17:00",
             # "eating_hours": "{'BF':'07:00', 'MMS':'09:00', 'LU':'12:00', 'MAS':'15:00', 'DI':'18:00'}"
         }
-        # return jsonify({'_id': db.create_user(request_body)})
         result = db.create_user(request_body)
 
     return return_resultset_jsonified_or_exception(result)

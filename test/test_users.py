@@ -153,7 +153,7 @@ def test_update_users(client):
 # ----- food_times
 
 
-def test_add_food_times_to_user(client):
+def test_user_food_times(client):
     """Test add a food_times item to the test user."""
 
     headers = {header_token_entry_name: pytest.session_token}
