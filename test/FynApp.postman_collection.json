@@ -18,7 +18,7 @@
 						},
 						{
 							"key": "password",
-							"value": "12345678",
+							"value": "{{FYNAPP_SUPAD_PSW}}",
 							"type": "string"
 						}
 					]
@@ -34,18 +34,13 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"password\": \"12345678\",\n    \"username\": \"foo@baz.com\"\n}"
+					"raw": ""
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5000/users/login",
-					"protocol": "http",
+					"raw": "{{SERVER_CLOUD}}/users/login",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{SERVER_CLOUD}}"
 					],
-					"port": "5000",
 					"path": [
 						"users",
 						"login"
@@ -73,20 +68,49 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"pospoe\": \"Carlos\",\n    \"lastname\": \"Ramirez\",\n    \"passcode\": \"12345678\",\n    \"creation_date\": 1635033994,\n    \"birthday\": -131760000,\n    \"email\": \"foo@baz.com\",\n    \"height\": \"76.0\",\n    \"tall\": \"1.70\",\n    \"height_unit\": \"kg\",\n    \"tall_unit\": \"meters\",\n    \"training_days\": \"MTWXFS\",\n    \"training_hour\": \"17:00\"\n}"
+					"raw": "{\n    \"firstname\": \"Carlos\",\n    \"lastname\": \"Ramirez\",\n    \"passcode\": \"12345678\",\n    \"creation_date\": 1635033994,\n    \"birthday\": -131760000,\n    \"email\": \"cramirez@mediabros.com\",\n    \"height\": \"76.0\",\n    \"tall\": \"1.70\",\n    \"height_unit\": \"kg\",\n    \"tall_unit\": \"meters\",\n    \"training_days\": \"MTWXFS\",\n    \"training_hour\": \"17:00\"\n}"
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5000/users",
-					"protocol": "http",
+					"raw": "{{SERVER_CLOUD}}/users",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{SERVER_CLOUD}}"
 					],
-					"port": "5000",
 					"path": [
 						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generar Password Encriptado",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-access-tokens",
+						"value": "{{FYNAPP_SESION_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"passwd\": \"{{FYNAPP_SUPAD_PSW}}\"  \n}"
+				},
+				"url": {
+					"raw": "{{SERVER_CLOUD}}/users/pas-enc",
+					"host": [
+						"{{SERVER_CLOUD}}"
+					],
+					"path": [
+						"users",
+						"pas-enc"
 					]
 				}
 			},
@@ -124,15 +148,10 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5000/users/supad-create",
-					"protocol": "http",
+					"raw": "{{SERVER_CLOUD}}/users/supad-create",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{SERVER_CLOUD}}"
 					],
-					"port": "5000",
 					"path": [
 						"users",
 						"supad-create"
@@ -156,22 +175,17 @@
 					}
 				],
 				"url": {
-					"raw": "http://127.0.0.1:5000/users?limit=5&skip=0",
-					"protocol": "http",
+					"raw": "{{SERVER_CLOUD}}/users?limit=50&skip=0",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{SERVER_CLOUD}}"
 					],
-					"port": "5000",
 					"path": [
 						"users"
 					],
 					"query": [
 						{
 							"key": "limit",
-							"value": "5"
+							"value": "50"
 						},
 						{
 							"key": "skip",
@@ -194,15 +208,10 @@
 					}
 				],
 				"url": {
-					"raw": "http://127.0.0.1:5000/users/test",
-					"protocol": "http",
+					"raw": "{{SERVER_CLOUD}}/users/test",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{SERVER_CLOUD}}"
 					],
-					"port": "5000",
 					"path": [
 						"users",
 						"test"
@@ -227,30 +236,20 @@
 				],
 				"body": {
 					"mode": "formdata",
-					"formdata": [],
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
+					"formdata": []
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5000/users?id=6180958b910b409a6c6aeb97",
-					"protocol": "http",
+					"raw": "{{SERVER_CLOUD}}/users?id={{TEST_USER_ID}}",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{SERVER_CLOUD}}"
 					],
-					"port": "5000",
 					"path": [
 						"users"
 					],
 					"query": [
 						{
 							"key": "id",
-							"value": "6180958b910b409a6c6aeb97"
+							"value": "{{TEST_USER_ID}}"
 						}
 					]
 				}
@@ -276,18 +275,13 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"_id\": \"6174c5381c1068cef3926d15\",\n    \"firstname\": \"Jose\",\n    \"lastname\": \"Divo\",\n    \"passcode\": \"87654321\",\n    \"creation_date\": 1635033994,\n    \"birthday\": -131760000,\n    \"email\": \"foo@baz.com\",\n    \"height\": \"76.0\",\n    \"tall\": \"1.70\",\n    \"height_unit\": \"kg\",\n    \"tall_unit\": \"meters\",\n    \"training_days\": \"MTWXFS\",\n    \"training_hour\": \"17:00\"\n}"
+					"raw": "{\n\t\"_id\": \"{{TEST_USER_ID}}\",\n    \"firsname\": \"Jose\",\n    \"lastname\": \"Divo\",\n    \"passcode\": \"87654321\",\n    \"creation_date\": 1635033994,\n    \"birthday\": -131760000,\n    \"email\": \"foo@baz.com\",\n    \"height\": \"76.0\",\n    \"tall\": \"1.70\",\n    \"height_unit\": \"kg\",\n    \"tall_unit\": \"meters\",\n    \"training_days\": \"MTWXFS\",\n    \"training_hour\": \"17:00\"\n}"
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5000/users",
-					"protocol": "http",
+					"raw": "{{SERVER_CLOUD}}/users",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{SERVER_CLOUD}}"
 					],
-					"port": "5000",
 					"path": [
 						"users"
 					]
@@ -307,22 +301,17 @@
 					}
 				],
 				"url": {
-					"raw": "http://127.0.0.1:5000/users?id=6180958b910b409a6c6aeb97&=",
-					"protocol": "http",
+					"raw": "{{SERVER_CLOUD}}/users?id={{TEST_USER_ID}}&=",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{SERVER_CLOUD}}"
 					],
-					"port": "5000",
 					"path": [
 						"users"
 					],
 					"query": [
 						{
 							"key": "id",
-							"value": "6180958b910b409a6c6aeb97"
+							"value": "{{TEST_USER_ID}}"
 						},
 						{
 							"key": "",
@@ -352,26 +341,158 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"user_id\": \"new_user_id\",\n    \"food_times\": {\n        \"food_moment_id\": \"test_food_moment_id\",\n        \"food_time\": \"12:00\"\n    }\n}"
+					"raw": "{\n    \"user_id\": \"{{TEST_USER_ID}}\",\n    \"food_times\": {\n        \"food_moment_id\": \"test_food_moment_id\",\n        \"food_time\": \"12:00\"\n    }\n}"
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5000/users/add-food-times-to-user?=",
-					"protocol": "http",
+					"raw": "{{SERVER_CLOUD}}/users/user-food-times?=",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{SERVER_CLOUD}}"
 					],
-					"port": "5000",
 					"path": [
 						"users",
-						"add-food-times-to-user"
+						"user-food-times"
 					],
 					"query": [
 						{
 							"key": "",
 							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modificar food_time a user",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "x-access-tokens",
+						"value": "{{FYNAPP_SESION_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_id\": \"{{TEST_USER_ID}}\",\n    \"food_times\": {\n        \"food_moment_id\": \"test_food_moment_id_2\",\n        \"food_time\": \"10:00\"\n    }\n}"
+				},
+				"url": {
+					"raw": "{{SERVER_CLOUD}}/users/user-food-times?=",
+					"host": [
+						"{{SERVER_CLOUD}}"
+					],
+					"path": [
+						"users",
+						"user-food-times"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar food_time a user",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "x-access-tokens",
+						"value": "{{FYNAPP_SESION_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_id\": \"{{TEST_USER_ID}}\",\n    \"food_times\": {\n        \"food_moment_id\": \"test_food_moment_id\"\n    }\n}"
+				},
+				"url": {
+					"raw": "{{SERVER_CLOUD}}/users/user-food-times?=",
+					"host": [
+						"{{SERVER_CLOUD}}"
+					],
+					"path": [
+						"users",
+						"user-food-times"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Lista de food_time de un user",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "x-access-tokens",
+						"value": "{{FYNAPP_SESION_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{SERVER_CLOUD}}/users/user-food-times?user_id={{TEST_USER_ID}}&food_moment_id=test_food_moment_id_2",
+					"host": [
+						"{{SERVER_CLOUD}}"
+					],
+					"path": [
+						"users",
+						"user-food-times"
+					],
+					"query": [
+						{
+							"key": "user_id",
+							"value": "{{TEST_USER_ID}}"
+						},
+						{
+							"key": "food_moment_id",
+							"value": "test_food_moment_id",
+							"disabled": true
+						},
+						{
+							"key": "food_moment_id",
+							"value": "test_food_moment_id_2"
 						}
 					]
 				}
@@ -407,6 +528,19 @@
 		{
 			"key": "FYNAPP_SUPAD_PSW",
 			"value": ""
+		},
+		{
+			"key": "SERVER_LOCAL",
+			"value": "http://localhost:5000"
+		},
+		{
+			"key": "SERVER_CLOUD",
+			"value": "https://fynapp-be-staging.herokuapp.com"
+		},
+		{
+			"key": "TEST_USER_ID",
+			"value": "",
+			"type": "string"
 		}
 	]
 }

@@ -1,78 +1,10 @@
 from bson.json_util import dumps, ObjectId
-from flask import current_app
-from pymongo import MongoClient, DESCENDING
-from werkzeug.local import LocalProxy
-
-from werkzeug.security import generate_password_hash, check_password_hash
-
-from flask import request
-#import uuid
-import jwt
-import datetime
-from functools import wraps
+from itertools import islice
 
 from fynapp_api.util.app_logger import log_debug, log_warning
 from fynapp_api.util.utilities import check_email, standard_error_return, get_standard_base_exception_msg, current_datetime_timestamp, get_default_resultset
-
-# Este método se encarga de configurar la conexión con la base de datos
-def get_db():
-    fynapp_db_uri = current_app.config['FYNAPP_DB_URI']
-    fynapp_db_name = current_app.config['FYNAPP_DB_NAME']
-    client = MongoClient(fynapp_db_uri)
-    # Devuelve el nombre de base de datos que se pasa por env var.
-    return client.get_database(fynapp_db_name)
-
-
-# Use LocalProxy to read the global db instance with just `db`
-db = LocalProxy(get_db)
-
-header_token_entry_name = 'x-access-tokens'
-
-
-def test_connection():
-    return dumps(db.list_collection_names())
-
-
-def collection_stats(collection_nombre):
-    return dumps(db.command('collstats', collection_nombre))
-
-
-# ----------------------- jwt -----------------------
-
-
-def token_required(f):
-    @wraps(f)
-    def decorator(*args, **kwargs):
-        token = None
-        # log_debug( 'token_required | request.headers: {}'.format(request.headers) )
-        if header_token_entry_name in request.headers:
-            token = request.headers[header_token_entry_name]
-        if not token:
-            return standard_error_return('a valid token is missing')
-        # log_debug( 'la clave: {}'.format(current_app.config['FYNAPP_SECRET_KEY']) )
-        # log_debug( 'el token: {}'.format(token) )
-        try:
-            data = jwt.decode(token, current_app.config['FYNAPP_SECRET_KEY'], algorithms="HS256")
-            # current_user = fetch_user_raw(users_id=data['public_id'])
-        except:
-            return standard_error_return('token is invalid')
-        # return f(current_user, *args, **kwargs)
-        return f(*args, **kwargs)
-    return decorator
-
-
-def token_encode(user):
-    token = jwt.encode(
-        {
-            'public_id': get_user_id_as_string(user),
-            'exp' : 
-                datetime.datetime.utcnow() + 
-                datetime.timedelta(minutes=30)
-        },
-        current_app.config['FYNAPP_SECRET_KEY'],
-        algorithm="HS256"
-    )
-    return token
+from fynapp_api.util.db_helpers import db
+from fynapp_api.util.passwords import encrypt_password
 
 # ...
 # ...
@@ -138,21 +70,21 @@ def fetch_users_list(skip, limit):
     return resultset
 
 
-def fetch_user(users_id):
+def fetch_user(users_id, proyeccion = {}):
     resultset = get_default_resultset()
 
-    existing_user = fetch_user_raw(users_id)
-    if not existing_user['resultset']:
-        resultset['error_message'] = 'UserId {} doesn\'t exist [FU1].'.format(users_id)
-    elif existing_user['error']:
-        resultset['error_message'] = existing_user['error_message']
+    db_row = fetch_user_raw(users_id, proyeccion)
+    if not db_row['resultset']:
+        resultset['error_message'] = 'Id {} doesn\'t exist [FU1].'.format(users_id)
+    elif db_row['error']:
+        resultset['error_message'] = db_row['error_message']
 
     if resultset['error_message']:
         resultset['error'] = True
         return resultset
 
     try:
-        resultset['resultset'] = dumps(existing_user['resultset'])
+        resultset['resultset'] = dumps(db_row['resultset'])
     except BaseException as err:
         resultset['error_message'] = get_standard_base_exception_msg(err, 'FU2')
         resultset['error'] = True
@@ -160,13 +92,13 @@ def fetch_user(users_id):
     return resultset
 
 
-def fetch_user_raw(users_id):
+def fetch_user_raw(users_id, proyeccion = {}):
     resultset = get_default_resultset()
 
     try:
         id = ObjectId(users_id)
     except ValueError:
-        resultset['error_message'] = 'UserId `{}` is invalid [FUR1].'.format(users_id)
+        resultset['error_message'] = 'Id `{}` is invalid [FUR1].'.format(users_id)
     except BaseException as err:
         resultset['error_message'] = get_standard_base_exception_msg(err, 'FUR2')
         # raise
@@ -176,7 +108,7 @@ def fetch_user_raw(users_id):
         return resultset
 
     try:
-        resultset['resultset'] = db.users.find_one({'_id': id})
+        resultset['resultset'] = db.users.find_one({'_id': id}, proyeccion)
     except BaseException as err:
         resultset['error_message'] = get_standard_base_exception_msg(err, 'FUR3')
         resultset['error'] = True
@@ -211,17 +143,17 @@ def create_user(json):
     elif not check_email(json['email']):
         resultset['error_message'] = 'error: Malformed email {} [CU3].'.format(json['email'])
     else:
-        existing_user = fetch_user_by_entryname_raw('email', json['email'])
-        if existing_user['resultset']:
+        db_row = fetch_user_by_entryname_raw('email', json['email'])
+        if db_row['resultset']:
             resultset['error_message'] = 'User {} already exists [CU4].'.format(json['email'])
-        elif existing_user['error']:
-            resultset['error_message'] = existing_user['error_message']
+        elif db_row['error']:
+            resultset['error_message'] = db_row['error_message']
 
     if resultset['error_message']:
         resultset['error'] = True
         return resultset
 
-    if ('passcode' in json):
+    if 'passcode' in json:
         json['passcode'] = encrypt_password(json['passcode'])
     json['creation_date'] = json['update_date'] = current_datetime_timestamp()
 
@@ -268,7 +200,7 @@ def update_users(record):
         return resultset
 
     updated_record['update_date'] = current_datetime_timestamp()
-    if ('passcode' in record and record['passcode']):
+    if 'passcode' in record and record['passcode']:
         updated_record['passcode'] = encrypt_password(record['passcode'])
 
     if '_id' not in record and 'id' in record:
@@ -289,11 +221,11 @@ def update_users(record):
 def delete_user(user_id):
     resultset = get_default_resultset()
 
-    existing_user = fetch_user_by_entryname_raw('_id', ObjectId(user_id))
-    if not existing_user['resultset']:
+    db_row = fetch_user_by_entryname_raw('_id', ObjectId(user_id))
+    if not db_row['resultset']:
         resultset['error_message'] = 'error: User {} doesn\'t exist [DU1].'.format(user_id)
-    elif existing_user['error']:
-        resultset['error_message'] = existing_user['error_message']
+    elif db_row['error']:
+        resultset['error_message'] = db_row['error_message']
 
     if resultset['error_message']:
         resultset['error'] = True
@@ -308,25 +240,51 @@ def delete_user(user_id):
     return resultset
 
 
-# ----- passwords
-
-
-def encrypt_password(passcode):
-    return generate_password_hash(passcode, method='sha256')
-
-
-def verify_password(user_password, auth_password):
-    return check_password_hash(user_password, auth_password)
-
-
 # ----- food_times
 
 
+def fetch_user_food_times(users_id, filters=None, skip=0, limit=None):
+    array_field = 'food_times'
+    resultset = get_default_resultset()
+    proyeccion = {
+        array_field: 1
+    }
+    db_parent_row = fetch_user_raw(users_id, proyeccion)
+    if not db_parent_row['resultset']:
+        resultset['error_message'] = 'Id {} doesn\'t exist [FUFT1].'.format(users_id)
+    elif db_parent_row['error']:
+        resultset['error_message'] = db_parent_row['error_message']
+
+    if resultset['error_message']:
+        resultset['error'] = True
+        return resultset
+
+    response = db_parent_row['resultset'].get(array_field, [])
+
+    if filters != None:
+        for key in filters:
+            response = list(filter(lambda x: x[key] == filters[key], response))
+
+    if skip == None:
+        skip = 0
+    response = list(islice(islice(response, skip, None), limit))
+
+    try:
+        resultset['resultset'] = dumps(response)
+    except BaseException as err:
+        resultset['error_message'] = get_standard_base_exception_msg(err, 'FUFT2')
+        resultset['error'] = True
+
+    return resultset
+
+
 def add_food_times_to_user(json):
+    array_field = 'food_times'
+    parent_key_field = 'user_id'
     resultset = get_default_resultset()
     try:
-        resultset['resultset']['rows_affected'] = str(db.users.update_one({'_id': ObjectId(json['user_id'])}, {
-            '$addToSet': {'food_times': json['food_times']}}).modified_count)
+        resultset['resultset']['rows_affected'] = str(db.users.update_one({'_id': ObjectId(json[parent_key_field])}, {
+            '$addToSet': {array_field: json[array_field]}}).modified_count)
     except BaseException as err:
         resultset['error_message'] = get_standard_base_exception_msg(err, 'AFTTU1')
         resultset['error'] = True
@@ -334,10 +292,24 @@ def add_food_times_to_user(json):
 
 
 def remove_food_times_to_user(json):
+    log_debug('')
+    log_debug('remove_food_times_to_user - json')
+    log_debug(json)
+    log_debug('')
+    array_field = 'food_times'
+    array_key_field = 'food_moment_id'
+    parent_key_field = 'user_id'
+    array_field_in_json = array_field
+    if '{}_old'.format(array_field_in_json) in json:
+        # This is for deletion of older entry when the key field has been changed
+        array_field_in_json = '{}_old'.format(array_field_in_json)
+    log_debug('')
+    log_debug('$pull from "{}", array_key_field={}, array_field_in_json={}, key value to REMOVE={}'.format(array_field, array_key_field, array_field_in_json, json[array_field_in_json][array_key_field]))
+    log_debug('')
     resultset = get_default_resultset()
     try:
-        resultset['resultset']['rows_affected'] = str(db.users.update_one({'_id': ObjectId(json['user_id'])}, {
-            '$pull': {'food_times': {'food_moment_id': json['food_moment_id']}}
+        resultset['resultset']['rows_affected'] = str(db.users.update_one({'_id': ObjectId(json[parent_key_field])}, {
+            '$pull': {array_field: {array_key_field: json[array_field_in_json][array_key_field]}}
         }).modified_count)
     except BaseException as err:
         resultset['error_message'] = get_standard_base_exception_msg(err, 'RFTTU')
@@ -349,6 +321,7 @@ def remove_food_times_to_user(json):
 
 
 def add_user_history_to_user(json):
+    array_field = 'user_history'
     resultset = get_default_resultset()
     try:
         # curso = consultar_curso_por_id_proyeccion(json['id_curso'], proyeccion={'nombre': 1})
@@ -361,6 +334,7 @@ def add_user_history_to_user(json):
 
 
 def remove_user_history_to_user(json):
+    array_field = 'user_history'
     resultset = get_default_resultset()
     try:
         resultset['resultset']['rows_affected'] = str(db.users.update_one({'_id': ObjectId(json['user_id'])}, {
