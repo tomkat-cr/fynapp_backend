@@ -22,6 +22,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ### Fixes
 FA-24: Fix error No such file or directory: '/app/logs/fynapp_general.log' on Heroku production.
 Fix when retrieve food_times from a user row doesn't have it.
+FA-6: Fix the bash script to run test to read .env.
 
 ### Changes
 FA-58: "restart: unless-stopped" to the VPS docker compose configuration, to let the containers stay active on server reboots.

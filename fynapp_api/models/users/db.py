@@ -188,7 +188,7 @@ def update_users(record):
     resultset['error_message'] = ''
     for element in mandatory_elements:
         if(element not in record):
-            resultset['error_message'] = '{}{} {}'.format(
+            resultset['error_message'] = '{}{}{}'.format(
                 resultset['error_message'],
                 ', ' if resultset['error_message'] != '' else '',
                 element
@@ -206,6 +206,9 @@ def update_users(record):
     if '_id' not in record and 'id' in record:
         record['_id'] = record['id']
         del record['id']
+
+    if '_id' in updated_record:
+        del updated_record['_id']
 
     try:
         resultset['resultset']['rows_affected'] = str(db.users.update_one({'_id': ObjectId(record['_id'])}, {

@@ -7,6 +7,7 @@ import os
 import jwt
 import datetime
 import base64
+import json
 
 
 test_email = 'foo@baz.com'
@@ -21,10 +22,10 @@ test_users_record = {
     'creation_date': 1635033994,
     'birthday': -131760000,
     'email': test_email,
-    'height': '76.0',
-    'tall': '1.70',
-    'height_unit': 'kg',
-    'tall_unit': 'meters',
+    'height': '1.70',
+    'height_unit': 'm',
+    'weight': '74',
+    'weight_unit': 'kg',
     'training_days': 'MTWXFS',
     'training_hour': '17:00',
     'pytest_run': 1
@@ -47,6 +48,7 @@ def test_create_superadmin_user(client):
     }
     valid_credentials = base64.b64encode(str.encode("{}:{}".format(auth['username'], auth['password']))).decode("utf-8")
     rv = client.post('/users/supad-create', headers={"Authorization": "Basic " + valid_credentials})
+    assert rv.status_code == 400
     assert b'could not verify [SAC3]' in rv.data or b'User already exists [SAC4]' in rv.data
 
 
@@ -69,9 +71,10 @@ def test_create_user(client):
     token = token_encode(user)
     headers =  {header_token_entry_name: token}
     rv = client.post('/users', json=dict(test_users_record), headers=dict(headers))
+    assert rv.status_code == 200
     json_data = rv.get_json()
-    assert '_id' in json_data
-    pytest.new_user_id = json_data['_id'] 
+    assert '_id' in json_data['resultset']
+    pytest.new_user_id = json_data['resultset']['_id'] 
     assert not pytest.new_user_id is None
     print('new_user_id = {}'.format(pytest.new_user_id))
 
@@ -88,8 +91,8 @@ def test_login(client):
     assert not b'could not verify' in rv.data
     assert rv.status_code == 200
     json_data = rv.get_json()
-    assert 'token' in json_data
-    pytest.session_token = json_data['token'] 
+    assert 'token' in json_data['resultset']
+    pytest.session_token = json_data['resultset']['token'] 
 
 
 def test_connection(client):
@@ -97,9 +100,11 @@ def test_connection(client):
 
     headers = {header_token_entry_name: pytest.session_token}
     rv = client.get('/users/test', headers=dict(headers))
+    assert rv.status_code == 200
     json_data = rv.get_json()
-    assert 'collections' in json_data
-    assert 'users' in json_data['collections']
+    assert 'resultset' in json_data
+    assert 'collections' in json_data['resultset']
+    assert 'users' in json_data['resultset']['collections']
     # assert b'collections' in rv.data
     # assert b'users' in rv.data
 
@@ -109,13 +114,16 @@ def test_fetch_users_list(client):
 
     headers = {header_token_entry_name: pytest.session_token}
     rv = client.get('/users?skip={}&limit={}'.format(0, 1), headers=dict(headers))
-    json_data = rv.get_json()
-    assert 'users' in json_data
-    assert isinstance(json_data['users'], list)
-    assert len(json_data['users']) == 1
-    assert 'firstname' in json_data['users'][0]
-    assert 'lastname' in json_data['users'][0]
-    assert 'passcode' not in json_data['users'][0]
+    assert rv.status_code == 200
+    json_data_raw = rv.get_json()
+    # {'error': False, 'error_message': None, 'resultset': '[{"_id": {"$oid": "6234804f0990244c025c599c"}, "birthday": -1317...1.70", "tall_unit": "meters", "training_days": "MTWXFS", "training_hour": "17:00", "update_date": 1647607887.898997}]'}
+    assert 'resultset' in json_data_raw
+    json_data = json.loads(json_data_raw['resultset'])
+    assert isinstance(json_data, list)
+    assert len(json_data) == 1
+    assert 'firstname' in json_data[0]
+    assert 'lastname' in json_data[0]
+    assert 'passcode' not in json_data[0]
 
 
 def test_fetch_user(client):
@@ -123,15 +131,17 @@ def test_fetch_user(client):
 
     headers = {header_token_entry_name: pytest.session_token}
     rv = client.get('/users?id={}'.format(pytest.new_user_id), headers=dict(headers))
-    json_data = rv.get_json()
-    assert 'user' in json_data
-    assert '_id' in json_data['user']
-    assert {'$oid': pytest.new_user_id} == json_data['user']['_id']
-    assert 'firstname' in json_data['user']
-    assert test_users_record['firstname'] == json_data['user']['firstname']
-    assert 'lastname' in json_data['user']
-    assert test_users_record['lastname'] == json_data['user']['lastname']
-    assert 'passcode' in json_data['user']
+    assert rv.status_code == 200
+    json_data_raw = rv.get_json()
+    assert 'resultset' in json_data_raw
+    json_data = json.loads(json_data_raw['resultset'])
+    assert '_id' in json_data
+    assert {'$oid': pytest.new_user_id} == json_data['_id']
+    assert 'firstname' in json_data
+    assert test_users_record['firstname'] == json_data['firstname']
+    assert 'lastname' in json_data
+    assert test_users_record['lastname'] == json_data['lastname']
+    assert 'passcode' in json_data
 
 
 def test_update_users(client):
@@ -145,9 +155,46 @@ def test_update_users(client):
 
     headers = {header_token_entry_name: pytest.session_token}
     rv = client.put('/users', json=dict(updated_record), headers=dict(headers))
+    assert rv.status_code == 200
     json_data = rv.get_json()
-    assert 'updates' in json_data
-    assert json_data['updates'] == '1'
+    # {'error': False, 'error_message': '', 'resultset': {'rows_affected': '1'}}
+    assert 'resultset' in json_data
+    assert 'rows_affected' in json_data['resultset']
+    assert json_data['resultset']['rows_affected'] == '1'
+
+
+def test_failed_update_users(client):
+    """Test failed update some user data."""
+
+    updated_record = dict(test_users_record)
+    del updated_record['weight']
+    del updated_record['weight_unit']
+    updated_record['_id'] = pytest.new_user_id
+    updated_record['firstname'] = 'Jose'
+    updated_record['lastname'] = 'Divo'
+    updated_record['passcode'] = '87654321'
+
+    headers = {header_token_entry_name: pytest.session_token}
+    rv = client.put('/users', json=dict(updated_record), headers=dict(headers))
+    assert rv.status_code == 400
+    #
+    # {'error': True, 'error_message': 'Missing mandatory elements:  weight,  weight_unit [UU1].', 'resultset': {}}
+    # json_data = rv.get_json()
+    # assert 'resultset' in json_data
+    # assert 'error' in json_data
+    # assert json_data['resultset']['error'] == True
+    # assert 'error_message' in json_data
+    # assert json_data['resultset']['error_message'] == 'Missing mandatory elements:  weight,  weight_unit [UU1]'
+    # assert 'resultset' in json_data
+    # assert json_data['resultset'] == {}
+    #
+    # Missing mandatory elements: weight_unit, weight [UU1]
+    # Missing mandatory elements: weight, weight_unit [UU1]
+    assert (
+        b'Missing mandatory elements: weight_unit, weight [UU1]' in rv.data
+        or
+        b'Missing mandatory elements: weight, weight_unit [UU1]' in rv.data
+    )
 
 
 # ----- food_times
@@ -157,7 +204,7 @@ def test_user_food_times(client):
     """Test add a food_times item to the test user."""
 
     headers = {header_token_entry_name: pytest.session_token}
-    rv = client.put('/users/add-food-times-to-user', json={
+    rv = client.put('/users/user-food-times', json={
             'user_id': pytest.new_user_id,
             'food_times': {
                 'food_moment_id': test_food_moment_id,
@@ -165,22 +212,30 @@ def test_user_food_times(client):
             }
         }, headers=dict(headers)
     )
+    assert rv.status_code == 200
     json_data = rv.get_json()
-    assert 'updates' in json_data
-    assert json_data['updates'] == '1'
+    # {'error': False, 'error_message': None, 'resultset': {'rows_affected': '1'}}
+    assert 'resultset' in json_data
+    assert 'rows_affected' in json_data['resultset']
+    assert json_data['resultset']['rows_affected'] == '1'
+
 
 def test_remove_food_times_to_user(client):
     """Test delete a food_times item from the test user."""
 
     headers = {header_token_entry_name: pytest.session_token}
-    rv = client.delete('/users/add-food-times-to-user', json={
+    rv = client.delete('/users/user-food-times', json={
             'user_id': pytest.new_user_id,
-            'food_moment_id': test_food_moment_id
+            'food_times': {
+                'food_moment_id': test_food_moment_id
+            }
         }, headers=dict(headers)
     )
+    assert rv.status_code == 200
     json_data = rv.get_json()
-    assert 'deletions' in json_data
-    assert json_data['deletions'] == '1'
+    assert 'resultset' in json_data
+    assert 'rows_affected' in json_data['resultset']
+    assert json_data['resultset']['rows_affected'] == '1'
 
 
 # ----- user_history
@@ -190,7 +245,7 @@ def test_add_user_history_to_user(client):
     """Test add a user_history item to the test user."""
 
     headers = {header_token_entry_name: pytest.session_token}
-    rv = client.put('/users/add-user-history-to-user', json={
+    rv = client.put('/users/user-user-history', json={
             'user_id': pytest.new_user_id,
             'user_history': {
                 'date': test_users_record['creation_date'],
@@ -200,23 +255,27 @@ def test_add_user_history_to_user(client):
             }
         }, headers=dict(headers)
     )
+    assert rv.status_code == 200
     json_data = rv.get_json()
-    assert 'updates' in json_data
-    assert json_data['updates'] == '1'
+    assert 'resultset' in json_data
+    assert 'rows_affected' in json_data['resultset']
+    assert json_data['resultset']['rows_affected'] == '1'
 
 
 def test_remove_user_history_to_user(client):
     """Test delete a user_history item from the test user."""
 
     headers = {header_token_entry_name: pytest.session_token}
-    rv = client.delete('/users/add-user-history-to-user', json={
+    rv = client.delete('/users/user-user-history', json={
             'user_id': pytest.new_user_id,
             'date': test_users_record['creation_date'],
         }, headers=dict(headers)
     )
+    assert rv.status_code == 200
     json_data = rv.get_json()
-    assert 'deletions' in json_data
-    assert json_data['deletions'] == '1'
+    assert 'resultset' in json_data
+    assert 'rows_affected' in json_data['resultset']
+    assert json_data['resultset']['rows_affected'] == '1'
 
 
 # ----- Sprint cleaning
@@ -227,6 +286,19 @@ def test_delete_user(client):
 
     headers = {header_token_entry_name: pytest.session_token}
     rv = client.delete('/users?id={}'.format(pytest.new_user_id), headers=dict(headers))
+    assert rv.status_code == 200
     json_data = rv.get_json()
-    assert 'deletions' in json_data
-    assert json_data['deletions'] == '1'
+    # {'error': False, 'error_message': None, 'resultset': {'rows_affected': '1'}}
+    assert 'resultset' in json_data
+    assert 'rows_affected' in json_data['resultset']
+    assert json_data['resultset']['rows_affected'] == '1'
+
+
+def test_delete_user_again(client):
+    """Test fail trying to delete the test user again."""
+
+    headers = {header_token_entry_name: pytest.session_token}
+    rv = client.delete('/users?id={}'.format(pytest.new_user_id), headers=dict(headers))
+    assert rv.status_code == 400
+    # error: User 62348adbfbe27f42c4837015 doesn't exist [DU1].
+    assert b'error: User ' in rv.data and b'doesn\'t exist [DU1]' in rv.data

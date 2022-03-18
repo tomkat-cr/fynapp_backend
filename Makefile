@@ -29,7 +29,7 @@ fresh: clean install
 # Development Commands
 tests:
 	# pipenv run pytest tests --junitxml=report.xml
-	sh run_fynapp_backend_tests.sh
+	sh scripts/run_fynapp_backend_tests.sh
 
 test: tests
 

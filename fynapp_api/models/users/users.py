@@ -3,6 +3,7 @@ from flask_cors import cross_origin
 import json
 
 from . import db
+from fynapp_api.util import db_helpers
 from fynapp_api.util.app_logger import log_debug
 from fynapp_api.util.jwt import token_required, token_encode
 from fynapp_api.util.passwords import verify_password, encrypt_password
@@ -121,7 +122,7 @@ def add_user_history():
 @cross_origin(supports_credentials=True)
 def test_connection():
     result = get_default_resultset()
-    result['resultset']['collections'] = json.loads(db.test_connection())
+    result['resultset']['collections'] = json.loads(db_helpers.test_connection())
     return return_resultset_jsonified_or_exception(result)
 
 
@@ -216,8 +217,6 @@ def super_admin_create():
             "height_unit": "m",
             "weight": "76.0",
             "weight_unit": "kg",
-            "tall": "1.70",
-            "tall_unit": "meters",
             "training_days": "MTWXFS",
             "training_hour": "17:00",
             # "eating_hours": "{'BF':'07:00', 'MMS':'09:00', 'LU':'12:00', 'MAS':'15:00', 'DI':'18:00'}"
