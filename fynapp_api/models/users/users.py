@@ -110,11 +110,50 @@ def add_food_times():
 @token_required
 @cross_origin(supports_credentials=True)
 def add_user_history():
+    # request_body = request.get_json()
+    # if request.method == 'PUT':
+    #     return return_resultset_jsonified_or_exception(db.add_user_history_to_user(request_body))
+    # elif request.method == 'DELETE':
+    #     return return_resultset_jsonified_or_exception(db.remove_user_history_to_user(request_body))
+    user_id = request.args.get('user_id')
+    food_moment_id = request.args.get('food_moment_id')
+    food_time = request.args.get('food_time')
+    skip = request.args.get('skip')
+    limit = request.args.get('limit')
     request_body = request.get_json()
-    if request.method == 'PUT':
+    filters = {}
+    if food_moment_id != None:
+        filters['food_moment_id'] = food_moment_id
+    if food_time != None:
+        filters['food_time'] = food_time
+
+    # Create
+    if request.method == 'POST':
+
+        log_debug( '>>> add_user_history | PUT request_body = {}'.format(request_body) )
         return return_resultset_jsonified_or_exception(db.add_user_history_to_user(request_body))
-    elif request.method == 'DELETE':
+    
+    # Delete
+    if request.method == 'DELETE':
+
+        log_debug( '>>> add_user_history | DELETE request_body = {}'.format(request_body) )
         return return_resultset_jsonified_or_exception(db.remove_user_history_to_user(request_body))
+
+    # List
+    if request.method == 'GET':
+
+        # Get the list (paginated) or one especific element
+        return return_resultset_jsonified_or_exception(db.fetch_user_history(user_id, filters, skip, limit))
+
+    # Modify
+    if request.method == 'PUT':
+
+        # When one element needs to bee modified, first remove it, then add it again
+        log_debug( '>>> add_user_history | POST request_body = {}'.format(request_body) )
+        remove_operation_result = db.remove_user_history_to_user(request_body)
+        if remove_operation_result['error']:
+            return return_resultset_jsonified_or_exception(remove_operation_result)
+        return return_resultset_jsonified_or_exception(db.add_user_history_to_user(request_body))
 
 
 @bp.route('/test')

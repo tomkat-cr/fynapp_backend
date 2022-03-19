@@ -204,7 +204,9 @@ def test_remove_user_history_to_user(client):
     headers = {header_token_entry_name: pytest.session_token}
     rv = client.delete('/users/user-user-history', json={
             'user_id': pytest.new_user_id,
-            'date': test_users_record['creation_date'],
+            'user_history': {
+                'date': test_users_record['creation_date'],
+            }
         }, headers=dict(headers)
     )
     assert rv.status_code == 200

@@ -258,21 +258,16 @@ def fetch_user_food_times(users_id, filters=None, skip=0, limit=None):
         resultset['error_message'] = 'Id {} doesn\'t exist [FUFT1].'.format(users_id)
     elif db_parent_row['error']:
         resultset['error_message'] = db_parent_row['error_message']
-
     if resultset['error_message']:
         resultset['error'] = True
         return resultset
-
     response = db_parent_row['resultset'].get(array_field, [])
-
     if filters != None:
         for key in filters:
             response = list(filter(lambda x: x[key] == filters[key], response))
-
     if skip == None:
         skip = 0
     response = list(islice(islice(response, skip, None), limit))
-
     try:
         resultset['resultset'] = dumps(response)
     except BaseException as err:
@@ -324,13 +319,42 @@ def remove_food_times_to_user(json):
 # ----- user_history
 
 
+def fetch_user_history(users_id, filters=None, skip=0, limit=None):
+    array_field = 'user_history'
+    resultset = get_default_resultset()
+    proyeccion = {
+        array_field: 1
+    }
+    db_parent_row = fetch_user_raw(users_id, proyeccion)
+    if not db_parent_row['resultset']:
+        resultset['error_message'] = 'Id {} doesn\'t exist [FUH1].'.format(users_id)
+    elif db_parent_row['error']:
+        resultset['error_message'] = db_parent_row['error_message']
+    if resultset['error_message']:
+        resultset['error'] = True
+        return resultset
+    response = db_parent_row['resultset'].get(array_field, [])
+    if filters != None:
+        for key in filters:
+            response = list(filter(lambda x: x[key] == filters[key], response))
+    if skip == None:
+        skip = 0
+    response = list(islice(islice(response, skip, None), limit))
+    try:
+        resultset['resultset'] = dumps(response)
+    except BaseException as err:
+        resultset['error_message'] = get_standard_base_exception_msg(err, 'FUH2')
+        resultset['error'] = True
+
+
 def add_user_history_to_user(json):
     array_field = 'user_history'
+    parent_key_field = 'user_id'
     resultset = get_default_resultset()
     try:
         # curso = consultar_curso_por_id_proyeccion(json['id_curso'], proyeccion={'nombre': 1})
-        resultset['resultset']['rows_affected'] = str(db.users.update_one({'_id': ObjectId(json['user_id'])}, {
-            '$addToSet': {'user_history': json['user_history']}}).modified_count)
+        resultset['resultset']['rows_affected'] = str(db.users.update_one({'_id': ObjectId(json[parent_key_field])}, {
+            '$addToSet': {array_field: json[array_field]}}).modified_count)
     except BaseException as err:
         resultset['error_message'] = get_standard_base_exception_msg(err, 'AUHTU1')
         resultset['error'] = True
@@ -338,14 +362,39 @@ def add_user_history_to_user(json):
 
 
 def remove_user_history_to_user(json):
+    log_debug('')
+    log_debug('remove_user_history_to_user - json')
+    log_debug(json)
+    log_debug('')
+
     array_field = 'user_history'
+    array_key_field = 'date'
+    parent_key_field = 'user_id'
+
+    # resultset = get_default_resultset()
+    # try:
+    #     resultset['resultset']['rows_affected'] = str(db.users.update_one({'_id': ObjectId(json['user_id'])}, {
+    #         '$pull': {'user_history': {'date': json['date']}}
+    #     }).modified_count)
+    # except BaseException as err:
+    #     resultset['error_message'] = get_standard_base_exception_msg(err, 'RUHTU')
+    #     resultset['error'] = True
+    # return resultset
+
+    array_field_in_json = array_field
+    if '{}_old'.format(array_field_in_json) in json:
+        # This is for deletion of older entry when the key field has been changed
+        array_field_in_json = '{}_old'.format(array_field_in_json)
+    log_debug('')
+    log_debug('$pull from "{}", array_key_field={}, array_field_in_json={}, key value to REMOVE={}'.format(array_field, array_key_field, array_field_in_json, json[array_field_in_json][array_key_field]))
+    log_debug('')
     resultset = get_default_resultset()
     try:
-        resultset['resultset']['rows_affected'] = str(db.users.update_one({'_id': ObjectId(json['user_id'])}, {
-            '$pull': {'user_history': {'date': json['date']}}
+        resultset['resultset']['rows_affected'] = str(db.users.update_one({'_id': ObjectId(json[parent_key_field])}, {
+            '$pull': {array_field: {array_key_field: json[array_field_in_json][array_key_field]}}
         }).modified_count)
     except BaseException as err:
-        resultset['error_message'] = get_standard_base_exception_msg(err, 'RUHTU')
+        resultset['error_message'] = get_standard_base_exception_msg(err, 'RFTTU')
         resultset['error'] = True
     return resultset
 
