@@ -1,42 +1,12 @@
-from array import array
-from test_fynapp_api import client
 import pytest
-
-# from flask import current_app
-import os
-import jwt
-import datetime
-import base64
 import json
+import os
+import base64
 
+from test_010_api import client
+from test_020_common import header_token_entry_name
+from test_020_common import test_email, test_password, test_food_moment_id, test_users_record
 
-test_email = 'foo@baz.com'
-test_password = 'Q12!K34$j56_79'
-dummy_user_id = '6174cf3e31d0f78fb73abf55'
-
-test_food_moment_id = '6174cf3e31d0f78fb73abf54'
-test_users_record = {
-    'firstname': 'Carlos',
-    'lastname': 'Ramirez',
-    'passcode': test_password,
-    'creation_date': 1635033994,
-    'birthday': -131760000,
-    'email': test_email,
-    'height': '1.70',
-    'height_unit': 'm',
-    'weight': '74',
-    'weight_unit': 'kg',
-    'training_days': 'MTWXFS',
-    'training_hour': '17:00',
-    'pytest_run': 1
-}
-header_token_entry_name = 'x-access-tokens'
-
-def pytest_namespace():
-    return {
-        'new_user_id': None,
-        'session_token': None,
-    }
 
 
 def test_create_superadmin_user(client):
@@ -52,49 +22,6 @@ def test_create_superadmin_user(client):
     assert b'could not verify [SAC3]' in rv.data or b'User already exists [SAC4]' in rv.data
 
 
-def test_create_user(client):
-    """Test Users creation."""
-
-    def token_encode(user):
-        token = jwt.encode(
-            {
-                'public_id': str(user['_id']),
-                'exp' : 
-                    datetime.datetime.utcnow() + 
-                    datetime.timedelta(minutes=30)
-            },
-            os.environ['FYNAPP_SECRET_KEY'],
-            algorithm="HS256"
-        )
-        return token
-    user = {'_id': dummy_user_id}
-    token = token_encode(user)
-    headers =  {header_token_entry_name: token}
-    rv = client.post('/users', json=dict(test_users_record), headers=dict(headers))
-    assert rv.status_code == 200
-    json_data = rv.get_json()
-    assert '_id' in json_data['resultset']
-    pytest.new_user_id = json_data['resultset']['_id'] 
-    assert not pytest.new_user_id is None
-    print('new_user_id = {}'.format(pytest.new_user_id))
-
-
-def test_login(client):
-    """Test user login."""
-
-    auth = {
-        'username': test_users_record['email'],
-        'password': test_users_record['passcode'],
-    }
-    valid_credentials = base64.b64encode(str.encode("{}:{}".format(auth['username'], auth['password']))).decode("utf-8")
-    rv = client.post('/users/login', headers={"Authorization": "Basic " + valid_credentials})
-    assert not b'could not verify' in rv.data
-    assert rv.status_code == 200
-    json_data = rv.get_json()
-    assert 'token' in json_data['resultset']
-    pytest.session_token = json_data['resultset']['token'] 
-
-
 def test_connection(client):
     """Test connection by querying the collections list (tables)."""
 
@@ -105,8 +32,15 @@ def test_connection(client):
     assert 'resultset' in json_data
     assert 'collections' in json_data['resultset']
     assert 'users' in json_data['resultset']['collections']
-    # assert b'collections' in rv.data
-    # assert b'users' in rv.data
+
+
+def test_create_user_again(client):
+    """Test fail trying to create the test user again."""
+
+    headers = {header_token_entry_name: pytest.session_token}
+    rv = client.post('/users', json=dict(test_users_record), headers=dict(headers))
+    assert rv.status_code == 400
+    assert bytes('User '+test_email+' already exists [CU4]', 'utf-8') in rv.data
 
 
 def test_fetch_users_list(client):
@@ -124,6 +58,8 @@ def test_fetch_users_list(client):
     assert 'firstname' in json_data[0]
     assert 'lastname' in json_data[0]
     assert 'passcode' not in json_data[0]
+    assert 'creation_date' in json_data[0]
+    assert 'update_date' in json_data[0]
 
 
 def test_fetch_user(client):

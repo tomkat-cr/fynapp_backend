@@ -129,7 +129,7 @@ def update_food_moments(record):
     resultset['error_message'] = ''
     for element in mandatory_elements:
         if(element not in record):
-            resultset['error_message'] = '{}{} {}'.format(
+            resultset['error_message'] = '{}{}{}'.format(
                 resultset['error_message'],
                 ', ' if resultset['error_message'] != '' else '',
                 element
@@ -145,6 +145,10 @@ def update_food_moments(record):
     if '_id' not in record and 'id' in record:
         record['_id'] = record['id']
         del record['id']
+
+    if '_id' in updated_record:
+        # To avoid "WriteError('Performing an update on the path '_id' would modify the immutable field '_id'
+        del updated_record['_id']
 
     try:
         resultset['resultset']['rows_affected'] = str(db.food_moments.update_one({'_id': ObjectId(record['_id'])}, {

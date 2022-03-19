@@ -208,6 +208,7 @@ def update_users(record):
         del record['id']
 
     if '_id' in updated_record:
+        # To avoid "WriteError('Performing an update on the path '_id' would modify the immutable field '_id'
         del updated_record['_id']
 
     try:
