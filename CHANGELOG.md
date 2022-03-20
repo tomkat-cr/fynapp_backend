@@ -28,7 +28,10 @@ FA-6: Fix the bash script to run test to read .env.
 FA-58: "restart: unless-stopped" to the VPS docker compose configuration, to let the containers stay active on server reboots.
 FA-31: Separate databases for prod, staging and development.
 FA-51: pull jwt, passwords, token, etc, from db.py to individual files on utilities directory.
-FA-6: Create endpoints and unit test for food_moments.
+FA-6: Create endpoints and unit test for food_moments, and fix the unit test for Users to handle the API results standarization with the `resultset` elements.
+Change `tall` and `tall_unit` with `weight` and `weight_unit`
+Fix the user_history CRUD the be compatible and usable as food_moments.
+food_times_crud and user_history_crud are more generic because now uses variables for the array elements names.
 FA-56: Add the fynapp_secret_key to the password hash + an endpoint to get a hashed password.
 FA-57: Create scripts to backup and restore mongo databases.
 Update `CHANGELOG.md` and `version.txt` files.

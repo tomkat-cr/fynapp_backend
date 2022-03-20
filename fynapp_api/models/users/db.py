@@ -26,8 +26,6 @@ from fynapp_api.util.passwords import encrypt_password
 #     height_unit
 #     weight
 #     weight_unit
-#     tall
-#     tall_unit
 #     training_days
 #     training_hour
 #     eating_hours
@@ -345,6 +343,7 @@ def fetch_user_history(users_id, filters=None, skip=0, limit=None):
     except BaseException as err:
         resultset['error_message'] = get_standard_base_exception_msg(err, 'FUH2')
         resultset['error'] = True
+    return resultset
 
 
 def add_user_history_to_user(json):

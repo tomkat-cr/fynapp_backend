@@ -16,7 +16,7 @@ bp = Blueprint('users', __name__, url_prefix='/users')
 @bp.route('', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @token_required
 @cross_origin(supports_credentials=True)
-def users_func():
+def users_crud():
 
     user_id = request.args.get('id')
     skip = request.args.get('skip')
@@ -24,35 +24,35 @@ def users_func():
     request_body = request.get_json()
 
     if request.method == 'POST':
-        # Crear user
+        # Create one user / Crear un user
         log_debug( 'CU-1) CREATE user | request_body: {}'.format(request_body) )
         result = db.create_user(request_body)
         log_debug( 'CU-2) Create user | result: {}'.format(result) )
         return return_resultset_jsonified_or_exception(result)
 
     elif request.method == 'PUT':
-        # Actualizar datos del user
+        # Update one user's data / Actualizar datos del user
         log_debug( 'UU-1) UPDATE user | request_body: {}'.format(request_body) )
         result = db.update_users(request_body)
         log_debug( 'UU-2) Update user | result: {}'.format(result) )
         return return_resultset_jsonified_or_exception(result)
 
     elif request.method == 'DELETE' and user_id is not None:
-        # Borrar un user usando el _id
+        # Delete an user by _id / Borrar un user usando el _id
         log_debug( 'DU-1) DELETE user | user_id: {}'.format(user_id) )
         result = db.delete_user(user_id)
         log_debug( 'DU-2) Delete user | result: {}'.format(result) )
         return return_resultset_jsonified_or_exception(result)
 
     elif user_id is not None:
-        # Obtener users por _id
+        # Get one user by _id / Obtener users por _id
         log_debug( 'GO-1) user by id: {}'.format(user_id) )
         result = db.fetch_user(user_id)
         log_debug( 'GO-2) user by id: {} | result: {}'.format(user_id, result) )
         return return_resultset_jsonified_or_exception(result)
 
     else:
-        # Obtener lista de users
+        # Fetch user's list / Obtener lista de users
         skip = (skip, 0)[skip is None]
         limit = (limit, 10)[limit is None]
         log_debug( 'GA-1) users list | skip: {} | limit: {}'.format(skip, limit) )
@@ -64,42 +64,48 @@ def users_func():
 @bp.route('/user-food-times', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @token_required
 @cross_origin(supports_credentials=True)
-def add_food_times():
-    user_id = request.args.get('user_id')
-    food_moment_id = request.args.get('food_moment_id')
-    food_time = request.args.get('food_time')
+def food_times_crud():
+
+    array_parent_id_element = 'user_id'
+    array_child_id_element = 'food_moment_id'
+
+    request_body = request.get_json()
+
+    array_parent_id_value = request.args.get(array_parent_id_element)
     skip = request.args.get('skip')
     limit = request.args.get('limit')
-    request_body = request.get_json()
+
+    array_child_id_value = request.args.get(array_child_id_element)
+    # food_time = request.args.get('food_time')
     filters = {}
-    if food_moment_id != None:
-        filters['food_moment_id'] = food_moment_id
-    if food_time != None:
-        filters['food_time'] = food_time
+    if array_child_id_value != None:
+        filters[array_child_id_element] = array_child_id_value
+    # if food_time != None:
+    #     filters['food_time'] = food_time
 
     # Create
     if request.method == 'POST':
 
-        log_debug( '>>> add_food_times | PUT request_body = {}'.format(request_body) )
+        log_debug( '>>> food_times_crud | PUT request_body = {}'.format(request_body) )
         return return_resultset_jsonified_or_exception(db.add_food_times_to_user(request_body))
     
     # Delete
     if request.method == 'DELETE':
 
-        log_debug( '>>> add_food_times | DELETE request_body = {}'.format(request_body) )
+        log_debug( '>>> food_times_crud | DELETE request_body = {}'.format(request_body) )
         return return_resultset_jsonified_or_exception(db.remove_food_times_to_user(request_body))
 
     # List
     if request.method == 'GET':
 
         # Get the list (paginated) or one especific element
-        return return_resultset_jsonified_or_exception(db.fetch_user_food_times(user_id, filters, skip, limit))
+        return return_resultset_jsonified_or_exception(db.fetch_user_food_times(array_parent_id_value, filters, skip, limit))
 
     # Modify
     if request.method == 'PUT':
 
         # When one element needs to bee modified, first remove it, then add it again
-        log_debug( '>>> add_food_times | POST request_body = {}'.format(request_body) )
+        log_debug( '>>> food_times_crud | POST request_body = {}'.format(request_body) )
         remove_operation_result = db.remove_food_times_to_user(request_body)
         if remove_operation_result['error']:
             return return_resultset_jsonified_or_exception(remove_operation_result)
@@ -109,47 +115,51 @@ def add_food_times():
 @bp.route('/user-user-history', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @token_required
 @cross_origin(supports_credentials=True)
-def add_user_history():
+def user_history_crud():
     # request_body = request.get_json()
     # if request.method == 'PUT':
     #     return return_resultset_jsonified_or_exception(db.add_user_history_to_user(request_body))
     # elif request.method == 'DELETE':
     #     return return_resultset_jsonified_or_exception(db.remove_user_history_to_user(request_body))
-    user_id = request.args.get('user_id')
-    food_moment_id = request.args.get('food_moment_id')
-    food_time = request.args.get('food_time')
+    request_body = request.get_json()
+
+    array_parent_id_element = 'user_id'
+    array_child_id_element = 'date'
+
+    array_parent_id_value = request.args.get(array_parent_id_element)
+
     skip = request.args.get('skip')
     limit = request.args.get('limit')
-    request_body = request.get_json()
+
     filters = {}
-    if food_moment_id != None:
-        filters['food_moment_id'] = food_moment_id
-    if food_time != None:
-        filters['food_time'] = food_time
+    array_child_id_value = request.args.get(array_child_id_element)
+    filters = {}
+    if array_child_id_value != None:
+        filters[array_child_id_element] = array_child_id_value
 
     # Create
     if request.method == 'POST':
 
-        log_debug( '>>> add_user_history | PUT request_body = {}'.format(request_body) )
+        log_debug( '>>> user_history_crud | PUT request_body = {}'.format(request_body) )
         return return_resultset_jsonified_or_exception(db.add_user_history_to_user(request_body))
     
     # Delete
     if request.method == 'DELETE':
 
-        log_debug( '>>> add_user_history | DELETE request_body = {}'.format(request_body) )
+        log_debug( '>>> user_history_crud | DELETE request_body = {}'.format(request_body) )
         return return_resultset_jsonified_or_exception(db.remove_user_history_to_user(request_body))
 
     # List
     if request.method == 'GET':
 
         # Get the list (paginated) or one especific element
-        return return_resultset_jsonified_or_exception(db.fetch_user_history(user_id, filters, skip, limit))
+        return return_resultset_jsonified_or_exception(db.fetch_user_history(array_parent_id_value, filters, skip, limit))
 
     # Modify
     if request.method == 'PUT':
 
         # When one element needs to bee modified, first remove it, then add it again
-        log_debug( '>>> add_user_history | POST request_body = {}'.format(request_body) )
+        log_debug( '>>> user_history_crud | POST request_body = {}'.format(request_body) )
         remove_operation_result = db.remove_user_history_to_user(request_body)
         if remove_operation_result['error']:
             return return_resultset_jsonified_or_exception(remove_operation_result)
