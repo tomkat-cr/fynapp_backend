@@ -7,22 +7,23 @@ import jwt
 import datetime
 from functools import wraps
 
-from fynapp_api.util.app_logger import log_debug, log_warning
+# from fynapp_api.util.app_logger import log_debug, log_warning
 from fynapp_api.util.utilities import standard_error_return
 from fynapp_api.models.users.db import get_user_id_as_string
 
 
 # ----------------------- JWT -----------------------
 
-header_token_entry_name = 'x-access-tokens'
+HEADER_TOKEN_ENTRY_NAME = 'x-access-tokens'
+EXPIRATION_MINUTES = 30
 
 def token_required(f):
     @wraps(f)
     def decorator(*args, **kwargs):
         token = None
         # log_debug( 'token_required | request.headers: {}'.format(request.headers) )
-        if header_token_entry_name in request.headers:
-            token = request.headers[header_token_entry_name]
+        if HEADER_TOKEN_ENTRY_NAME in request.headers:
+            token = request.headers[HEADER_TOKEN_ENTRY_NAME]
         if not token:
             return standard_error_return('a valid token is missing')
         # log_debug( 'la clave: {}'.format(current_app.config['FYNAPP_SECRET_KEY']) )
@@ -43,7 +44,7 @@ def token_encode(user):
             'public_id': get_user_id_as_string(user),
             'exp' : 
                 datetime.datetime.utcnow() + 
-                datetime.timedelta(minutes=30)
+                datetime.timedelta(minutes=EXPIRATION_MINUTES)
         },
         current_app.config['FYNAPP_SECRET_KEY'],
         algorithm="HS256"

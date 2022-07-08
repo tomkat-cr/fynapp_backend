@@ -273,3 +273,52 @@ def super_admin_create():
         result = db.create_user(request_body)
 
     return return_resultset_jsonified_or_exception(result)
+
+# ------------------------> designers_flutter_test
+
+@bp.route('designers_flutter_test', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@cross_origin(supports_credentials=True)
+def designers_flutter_test_crud():
+
+    user_id = request.args.get('id')
+    skip = request.args.get('skip')
+    limit = request.args.get('limit')
+    request_body = request.get_json()
+
+    # if request.method == 'POST':
+    #     # Create one user / Crear un user
+    #     log_debug( 'CU-1) CREATE user | request_body: {}'.format(request_body) )
+    #     result = db.create_user(request_body)
+    #     log_debug( 'CU-2) Create user | result: {}'.format(result) )
+    #     return return_resultset_jsonified_or_exception(result)
+
+    # elif request.method == 'PUT':
+    #     # Update one user's data / Actualizar datos del user
+    #     log_debug( 'UU-1) UPDATE user | request_body: {}'.format(request_body) )
+    #     result = db.update_users(request_body)
+    #     log_debug( 'UU-2) Update user | result: {}'.format(result) )
+    #     return return_resultset_jsonified_or_exception(result)
+
+    # elif request.method == 'DELETE' and user_id is not None:
+    #     # Delete an user by _id / Borrar un user usando el _id
+    #     log_debug( 'DU-1) DELETE user | user_id: {}'.format(user_id) )
+    #     result = db.delete_user(user_id)
+    #     log_debug( 'DU-2) Delete user | result: {}'.format(result) )
+    #     return return_resultset_jsonified_or_exception(result)
+
+    # elif user_id is not None:
+    #     # Get one user by _id / Obtener users por _id
+    #     log_debug( 'GO-1) user by id: {}'.format(user_id) )
+    #     result = db.fetch_user(user_id)
+    #     log_debug( 'GO-2) user by id: {} | result: {}'.format(user_id, result) )
+    #     return return_resultset_jsonified_or_exception(result)
+
+    # else:
+    if request.method == 'GET':
+        # Fetch designers_flutter_test's list / Obtener lista de users
+        skip = (skip, 0)[skip is None]
+        limit = (limit, 10)[limit is None]
+        log_debug( 'GA-1) designers_flutter_test list | skip: {} | limit: {}'.format(skip, limit) )
+        result = db.fetch_designers_flutter_test_list(skip, limit)
+        log_debug( 'GA-2) designers_flutter_test list | result {}'.format(result) )
+        return return_resultset_jsonified_or_exception(result)

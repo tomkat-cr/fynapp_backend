@@ -265,6 +265,10 @@ def fetch_user_food_times(users_id, filters=None, skip=0, limit=None):
             response = list(filter(lambda x: x[key] == filters[key], response))
     if skip == None:
         skip = 0
+    else:
+        skip = int(skip)
+    if limit != None:
+        limit = int(limit)
     response = list(islice(islice(response, skip, None), limit))
     try:
         resultset['resultset'] = dumps(response)
@@ -337,6 +341,10 @@ def fetch_user_history(users_id, filters=None, skip=0, limit=None):
             response = list(filter(lambda x: x[key] == filters[key], response))
     if skip == None:
         skip = 0
+    else:
+        skip = int(skip)
+    if limit != None:
+        limit = int(limit)
     response = list(islice(islice(response, skip, None), limit))
     try:
         resultset['resultset'] = dumps(response)
@@ -480,3 +488,18 @@ def remove_user_history_to_user(json):
 #       ]
 
 # ----------------------- -----------------------
+
+# --------> designers_flutter_test
+
+
+def fetch_designers_flutter_test_list(skip, limit):
+    resultset = get_default_resultset()
+
+    proyeccion = {'passcode': 0}
+    try:
+        resultset['resultset'] = dumps(db.designers_flutter_test.find({}, proyeccion).skip(int(skip)).limit(int(limit)))
+    except BaseException as err:
+        resultset['error_message'] = get_standard_base_exception_msg(err, 'DFTL1')
+        resultset['error'] = True
+
+    return resultset

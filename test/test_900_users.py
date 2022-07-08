@@ -60,6 +60,12 @@ def test_fetch_users_list(client):
     assert 'passcode' not in json_data[0]
     assert 'creation_date' in json_data[0]
     assert 'update_date' in json_data[0]
+    row_to_compare = dict(test_users_record)
+    del row_to_compare['passcode']
+    row_to_compare['_id'] = json_data[0]['_id']
+    row_to_compare['creation_date'] = json_data[0]['creation_date']
+    row_to_compare['update_date'] = json_data[0]['update_date']
+    assert json_data[0] == row_to_compare
 
 
 def test_fetch_user(client):
@@ -136,7 +142,7 @@ def test_failed_update_users(client):
 # ----- food_times
 
 
-def test_user_food_times(client):
+def test_add_food_times_to_user(client):
     """Test add a food_times item to the test user."""
 
     headers = {header_token_entry_name: pytest.session_token}
@@ -145,6 +151,46 @@ def test_user_food_times(client):
             'food_times': {
                 'food_moment_id': test_food_moment_id,
                 'food_time': '12:00'
+            }
+        }, headers=dict(headers)
+    )
+    assert rv.status_code == 200
+    json_data = rv.get_json()
+    # {'error': False, 'error_message': None, 'resultset': {'rows_affected': '1'}}
+    assert 'resultset' in json_data
+    assert 'rows_affected' in json_data['resultset']
+    assert json_data['resultset']['rows_affected'] == '1'
+
+
+def test_fetch_food_times_from_user(client):
+    """Test food_times list."""
+
+    headers = {header_token_entry_name: pytest.session_token}
+    rv = client.get('/users/user-food-times?skip={}&limit={}&user_id={}'.format(
+        0, 1, pytest.new_user_id), headers=dict(headers))
+    assert rv.status_code == 200
+    json_data_raw = rv.get_json()
+    assert 'resultset' in json_data_raw
+    json_data = json.loads(json_data_raw['resultset'])
+    assert isinstance(json_data, list)
+    assert len(json_data) == 1
+    assert 'food_moment_id' in json_data[0]
+    assert 'food_time' in json_data[0]
+    assert json_data[0] == {
+        'food_moment_id': test_food_moment_id,
+        'food_time': '12:00'
+    }
+
+
+def test_update_food_times_to_user(client):
+    """Test update a food_times item in the test user."""
+
+    headers = {header_token_entry_name: pytest.session_token}
+    rv = client.post('/users/user-food-times', json={
+            'user_id': pytest.new_user_id,
+            'food_times': {
+                'food_moment_id': test_food_moment_id,
+                'food_time': '22:00'
             }
         }, headers=dict(headers)
     )
@@ -187,6 +233,51 @@ def test_add_user_history_to_user(client):
                 'date': test_users_record['creation_date'],
                 'goals': 'Loose weight',
                 'weight': '70',
+                'weight_unit': 'kg'
+            }
+        }, headers=dict(headers)
+    )
+    assert rv.status_code == 200
+    json_data = rv.get_json()
+    assert 'resultset' in json_data
+    assert 'rows_affected' in json_data['resultset']
+    assert json_data['resultset']['rows_affected'] == '1'
+
+
+def test_fetch_user_history_from_user(client):
+    """Test user_history list."""
+
+    headers = {header_token_entry_name: pytest.session_token}
+    rv = client.get('/users/user-user-history?skip={}&limit={}&user_id={}'.format(
+        0, 1, pytest.new_user_id), headers=dict(headers))
+    assert rv.status_code == 200
+    json_data_raw = rv.get_json()
+    assert 'resultset' in json_data_raw
+    json_data = json.loads(json_data_raw['resultset'])
+    assert isinstance(json_data, list)
+    assert len(json_data) == 1
+    assert 'date' in json_data[0]
+    assert 'goals' in json_data[0]
+    assert 'weight' in json_data[0]
+    assert 'weight_unit' in json_data[0]
+    assert json_data[0] == {
+        'date': test_users_record['creation_date'],
+        'goals': 'Loose weight',
+        'weight': '70',
+        'weight_unit': 'kg'
+    }
+
+
+def test_update_user_history_to_user(client):
+    """Test update a user_history item to the test user."""
+
+    headers = {header_token_entry_name: pytest.session_token}
+    rv = client.post('/users/user-user-history', json={
+            'user_id': pytest.new_user_id,
+            'user_history': {
+                'date': test_users_record['creation_date'],
+                'goals': 'Get fit',
+                'weight': '82',
                 'weight_unit': 'kg'
             }
         }, headers=dict(headers)
