@@ -5,17 +5,16 @@
 #
 # Especifica donde esta este script, que debe ser el directorio del repositorio...
 cd "`dirname "$0"`" ;
-SCRIPTS_DIR="`pwd`/.." ;
-#
-export FYNAPP_MONGO_REPO_BASEDIR="${SCRIPTS_DIR}"
+SCRIPTS_DIR="`pwd`" ;
+REPO_BASEDIR="${SCRIPTS_DIR}/.."
 #
 # Credenciales desde un .env (deberian ir mas bien en un "Vault")
-if [ -f "${SCRIPTS_DIR}/.env" ]; then
-    set -o allexport; . "${SCRIPTS_DIR}/.env"; set +o allexport ;
+if [ -f "${REPO_BASEDIR}/.env" ]; then
+    set -o allexport; . "${REPO_BASEDIR}/.env"; set +o allexport ;
 fi
 if [[ "${FYNAPP_DB_USR_PSW}" == "" ]]; then 
     # Si no encontro las credenciales en el .env, intenta sacarlas de 1Password
-    OP_ENTRY_NAME_MONGO_CREDS="MongoDB Atlas MBI Fynapp-dev Admin"
+    OP_ENTRY_NAME_MONGO_CREDS="MongoDB Atlas MBI Fynapp-Dev Admin"
     OP_ENTRY_NAME_FYNAPP_SECRET_KEY="Fynapp Secret Key JWT"
     # Verifica si hay una sesion abierta de 1Password, si no, login.
     while [[ "${OP_SESSION_my}" == "" ]]; do
@@ -51,7 +50,7 @@ else
         export FYNAPP_DB_NAME="fynapp_${FYNAPP_DB_ENV}"
         export FYNAPP_DB_URI="mongodb+srv://${FYNAPP_DB_USR_NAME}:${FYNAPP_DB_USR_PSW}@${FYNAPP_DB_SERVER}"
         #
-        cd ${FYNAPP_MONGO_REPO_BASEDIR}
+        cd ${REPO_BASEDIR}
         python3 -m venv venv
         source venv/bin/activate
         pip3 install -r requirements.txt
