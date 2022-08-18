@@ -1,0 +1,26 @@
+{
+  "name": "fynapp_backend",
+  "version": "1.0.0",
+  "description": "Mediabros FynApp (backend)",
+  "author": "Carlos J. Ramirez (Mediabros)",
+  "license": "Private",
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/tomkat-cr/fynapp_backend.git"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/tomkat-cr/fynapp_backend/issues"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "python -m pytest",
+    "start-dev": "flask run",
+    "start": "sh scripts/run_server.sh"
+  },
+  "engines": {
+    "node": "16.9.1",
+    "npm": "8.0.0"
+  }
+}
