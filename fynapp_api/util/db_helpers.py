@@ -1,12 +1,13 @@
 from __future__ import annotations
-# from types import NoneType
-from bson.json_util import dumps
+from bson.json_util import dumps, ObjectId
 from flask import current_app
 from werkzeug.local import LocalProxy
-
+import uuid
+  
 from pymongo import MongoClient
 
 import boto3
+from boto3.dynamodb.conditions import Key
 
 from .app_logger import log_debug, log_warning
 
@@ -58,11 +59,11 @@ class DbAbstract:
         return dumps(self.list_collections(collection_name))
 
 
-    def create_tables():
+    def create_tables(self):
         return True
 
 
-    def table_exists(table_name: str) -> bool:
+    def table_exists(self, table_name: str) -> bool:
         return True
 
 
@@ -97,12 +98,74 @@ class MongodbServiceBuilder(DbAbstract):
 # ----------------------- DynamoDb  -----------------------
 
 
+class DynamoDbIdUtilities:
+    def new_id(self):
+        # google: python generate unique _id like mongodb
+        # https://www.geeksforgeeks.org/generating-random-ids-using-uuid-python/
+        id = uuid.uuid1()
+        # uuid1() includes the used of MAC address of computer, 
+        # and hence can compromise the privacy, even though it provides UNIQUENES.
+        return id.hex
+
+
+    def id_addition(self, row):
+        if 'id' in row:
+            row['_id'] = ObjectId(row['id'])
+        elif '_id' in row and isinstance(row['_id'], str):
+            row['id'] = row['_id']
+            row['_id'] = ObjectId(row['_id'])
+        return row
+
+
+    def id_conversion(self, key_set):
+        if '_id' in key_set and not isinstance(key_set['_id'], str):
+            key_set['_id'] = str(key_set['_id'])
+        return key_set
+
+
+class DynamoDbFindIterator(DynamoDbIdUtilities):
+    def __init__(self, data_set):
+        log_debug('>>--> DynamoDbFindIterator | __init__() | data_set: '+str(data_set))
+        self._data_set = data_set
+        self._skip = 0
+        self._limit = None
+
+
+    def skip(self, skip):
+        log_debug('>>--> DynamoDbFindIterator | skip() | skip: '+str(skip))
+        self._skip = skip
+        return self
+
+
+    def limit(self, limit):
+        log_debug('>>--> DynamoDbFindIterator | limit() | limit: '+str(limit))
+        self._limit = limit
+        return self
+
+
+    def __iter__(self):
+        self._num = self._skip
+        log_debug('>>--> DynamoDbFindIterator | __iter__() | self.num: '+str(self._num))
+        return self
+
+
+    def __next__(self):
+        log_debug('>>--> DynamoDbFindIterator | __next__() | self.num: '+str(self._num)+' | len(self._data_set): '+str(len(self._data_set)))
+        if (not self._limit or self._num <= self._limit) and self._data_set and self._num < len(self._data_set):
+            _result = self.id_addition(self._data_set[self._num])
+            self._num += 1
+            return _result
+        else:
+            raise StopIteration
+
+
 class DynamoDbTableAbstract:
     def __init__(self, item_structure, db_conection):
         log_debug('>>--> DynamoDbTableAbstract | __init__ | item_structure: '+str(item_structure))
-        self.set_table_name(item_structure['table_name'])
-        self.set_key_schema(item_structure['key_schema'])
-        self.set_attribute_definitions(item_structure['attribute_definitions'])
+        self.set_table_name(item_structure['TableName'])
+        self.set_key_schema(item_structure['KeySchema'])
+        self.set_global_secondary_indexes(item_structure.get('GlobalSecondaryIndexes', []))
+        self.set_attribute_definitions(item_structure['AttributeDefinitions'])
         self._db_conection = db_conection
 
 
@@ -118,6 +181,10 @@ class DynamoDbTableAbstract:
         self._attribute_definitions = attribute_definitions
 
 
+    def set_global_secondary_indexes(self, global_secondary_indexes):
+        self._global_secondary_indexes = global_secondary_indexes
+
+
     def get_table_name(self):
         return self._table_name
 
@@ -129,37 +196,173 @@ class DynamoDbTableAbstract:
     def get_attribute_definitions(self):
         return self._attribute_definitions
 
-    # resultset['resultset'] = db.users.find_one({'_id': id}, proyeccion)
 
-    def find_one(self, query_params, proyection = {}):
-        log_debug('>>--> find_one() | table: '+self.get_table_name()+' | query_params: ' + str(query_params))
+    def get_global_secondary_indexes(self):
+        return self._global_secondary_indexes
+
+
+    def element_name(self, element_name):
+        log_debug("||--> element_name")
+        log_debug(element_name)
+        return element_name['AttributeName'] if element_name['AttributeName'] != '_id' else 'id'
+
+
+    def get_condition_expresion_values(self, keys):
+        condition_values = list(map(lambda key: {':'+key['name']: key['value']}, keys))
+        condition_expresion = ' AND '.join(
+            list(map(lambda key: '#'+key['name'] + ' = :' + key['name'], keys))
+        )
+        return condition_values, condition_expresion
+
+
+    # Look for keys in partition/sort key
+    def get_primary_keys(self, query_params):
+        keys = list(filter(lambda key: query_params.get(self.element_name(key)) != None, self.get_key_schema()))
+        keys = list(map(lambda key: {self.element_name(key): query_params.get(self.element_name(key))}, keys))
+        return keys
+
+
+    # Look for keys in global secondary indexes
+    def get_global_secondary_indexes_keys(self, query_params):
+        keys = list(
+            filter(
+                lambda key: query_params.get(self.element_name(key)) != None, 
+                list(
+                    map(
+                        lambda key: key, 
+                        self.get_global_secondary_indexes().get("KeySchema", [])
+                    )
+                )
+            )
+        )
+        keys = list(map(lambda key: {"name": self.element_name(key), "value": query_params.get(self.element_name(key))}, keys))
+        return keys
+
+
+    def generic_query(self, query_params, proyection = {}):
+        log_debug('>>--> generic_query() | table: ' + self.get_table_name() + ' | query_params: ' + str(query_params)+ ' | proyection: ' + str(proyection))
+
         table = self._db_conection.Table(self.get_table_name())
-        keys = {}
-        for key_schema_item in self.get_key_schema():
-            key_name = key_schema_item['AttributeName']
-            keys[key_name] = query_params.get(key_name if key_name != '_id' else 'id')
 
-        response = table.get_item(
+        if not query_params or len(query_params) == 0:
+            response = table.scan()
+            return response.get('Items') if response else None
+
+        keys = self.get_primary_keys(query_params)
+
+        if keys:
+            response = table.get_item(
+                Key=keys
+            )
+            log_debug(response)
+            return response.get('Item') if response else None
+
+        keys = self.get_global_secondary_indexes_keys(query_params)
+
+        if not keys:
+            log_debug('No keys found...')
+            keys = list(map(lambda key: {"name": key, "value": query_params.get(key)}, list(query_params.keys())))
+            condition_values, condition_expresion = self.get_condition_expresion_values(keys)
+            response = table.scan(
+                ExpressionAttributeValues = condition_values,
+                FilterExpression = condition_expresion
+            )
+            return response.get('Items')[0] if response else None
+
+        log_debug('===> Keys found...')
+        log_debug(keys)
+        if len(keys) == 1:
+            response = table.query(
+                KeyConditionExpression = Key(keys[0]['name']).eq(keys[0]['value'])
+            )
+        else:
+            condition_values, condition_expresion = self.get_condition_expresion_values(keys)
+            response = table.query(
+                ExpressionAttributeValues = condition_values,
+                KeyConditionExpression = condition_expresion
+            )
+
+        log_debug(response)
+        return response.get('Items')[0] if response else None
+
+
+    # resultset['resultset'] = db.users.find({}, proyeccion).skip(int(skip)).limit(int(limit))
+    def find(self, query_params, proyection = {}):
+        log_debug('>>--> find() | table: ' + self.get_table_name() + ' | query_params: ' + str(query_params)+ ' | proyection: ' + str(proyection))
+        return DynamoDbFindIterator(self.generic_query(query_params, proyection))
+
+
+    # resultset['resultset'] = db.users.find_one({'_id': id}, proyeccion)
+    def find_one(self, query_params, proyection = {}):
+        log_debug('>>--> find_one() | table: ' + self.get_table_name() + ' | query_params: ' + str(query_params)+ ' | proyection: ' + str(proyection))
+        return self.generic_query(query_params, proyection)
+
+
+    # resultset['resultset']['_id'] = str(db.users.insert_one(json).inserted_id)
+    def insert_one(self, new_item):
+        log_debug('>>--> insert_one() | table: ' + self.get_table_name() + ' | new_item: ' + str(new_item))
+        table = self._db_conection.Table(self.get_table_name())
+        response = {
+            'inserted_id': self.new_id()
+        }
+        new_item['_id'] = response['inserted_id']
+        result = table.put_item(
+            Item=new_item
+        )
+        log_debug(response)
+        return response if result else False
+
+
+    # Case 1: $set
+    # resultset['resultset']['rows_affected'] = str(db.users.update_one({'_id': ObjectId(record['_id'])}, {'$set': updated_record}).modified_count)
+    # Case 2: $addToSet
+    # resultset['resultset']['rows_affected'] = str(db.users.update_one({'_id': ObjectId(json[parent_key_field])}, {'$addToSet': {array_field: json[array_field]}}).modified_count)
+    # Case 3: $pull
+    # resultset['resultset']['rows_affected'] = str(db.users.update_one({'_id': ObjectId(json[parent_key_field])}, {'$pull': {array_field: {array_key_field: json[array_field_in_json][array_key_field]}}}).modified_count)
+    def update_one(self, key_set, update_set):
+        log_debug('>>--> update_one() | table: ' + self.get_table_name() + ' | key_set: ' + str(key_set))
+        table = self._db_conection.Table(self.get_table_name())
+        key_set = self.id_conversion(key_set)
+        response = {
+            'modified_count': 1
+        }
+        keys = self.get_primary_keys(key_set)
+        if not keys:
+            return False
+        expression_attribute_values, update_expression = self.get_condition_expresion_values(keys)
+        result = table.update_item(
+            Key=keys,
+            UpdateExpression="SET title=:r",
+            ExpressionAttributeValues={
+                ':r': data['title']
+            },
+            ReturnValues="UPDATED_NEW"
+        )
+        log_debug(response)
+        return response if result else False
+
+
+
+
+    # resultset['resultset']['rows_affected'] = str(db.users.delete_one({'_id': ObjectId(user_id)}).deleted_count)
+    def delete_one(self, key_set):
+        log_debug('>>--> delete_one() | table: ' + self.get_table_name() + ' | key_set: ' + str(key_set))
+        table = self._db_conection.Table(self.get_table_name())
+        key_set = self.id_conversion(key_set)
+        response = {
+            'deleted_count': 1
+        }
+        keys = self.get_primary_keys(key_set)
+        if not keys:
+            return False
+        result = table.delete_item(
             Key=keys
         )
         log_debug(response)
-        item = response.get('Item')
-        return item
-
-    # resultset['resultset'] = db.users.find({}, proyeccion).skip(int(skip)).limit(int(limit))
-
-    # resultset['resultset']['_id'] = str(db.users.insert_one(json).inserted_id)
-    
-    # resultset['resultset']['rows_affected'] = str(db.users.update_one({'_id': ObjectId(record['_id'])}, {'$set': updated_record}).modified_count)
-    
-    # resultset['resultset']['rows_affected'] = str(db.users.update_one({'_id': ObjectId(json[parent_key_field])}, {'$pull': {array_field: {array_key_field: json[array_field_in_json][array_key_field]}}}).modified_count)
-    
-    # resultset['resultset']['rows_affected'] = str(db.users.update_one({'_id': ObjectId(json[parent_key_field])}, {'$addToSet': {array_field: json[array_field]}}).modified_count)
-
-    # resultset['resultset']['rows_affected'] = str(db.users.delete_one({'_id': ObjectId(user_id)}).deleted_count)
+        return response if result else False
 
 
-class DynamodbServiceSuper(DbAbstract):
+class DynamodbServiceSuper(DbAbstract, DynamoDbIdUtilities):
     def get_db_conection(self):
         self._db = boto3.resource('dynamodb')
         self.create_table_name_propeties()
@@ -198,8 +401,8 @@ class DynamodbServiceSuper(DbAbstract):
             # Create table in Dynamodb
             table = self._db.create_table(
                 TableName=item_name,
-                KeySchema=item_list[item_name]['key_schema'],
-                AttributeDefinitions=item_list[item_name]['attribute_definitions'],
+                KeySchema=item_list[item_name]['KeySchema'],
+                AttributeDefinitions=item_list[item_name]['AttributeDefinitions'],
                 ProvisionedThroughput=item_list[item_name].get('provisioned_throughput', default_provisioned_throughput)
             )
             # Wait until the table exists.
@@ -222,54 +425,58 @@ class DynamodbService(DynamodbServiceSuper):
     def list_collections(self):
         return {
             "users" : {
-                'table_name': 'users',
-                'key_schema': [
+                'TableName': 'users',
+                'KeySchema': [
                     {
-                        'AttributeName': 'email',
-                        'KeyType': 'HASH'
-                    },
-                    # {
-                    #     'AttributeName': 'id',
-                    #     'KeyType': 'RANGE'
-                    # }
+                        'AttributeName': '_id',
+                        'KeyType': 'RANGE'
+                    }
                 ],
-                'attribute_definitions': [
+                'GlobalSecondaryIndexes': {
+                    'KeySchema': [
+                        {
+                            'AttributeName': 'email',
+                            'KeyType': 'HASH'
+                        },
+                    ],
+                },
+                'AttributeDefinitions': [
                     {
                         'AttributeName': 'email',
                         'AttributeType': 'S'
                     },
-                    # {
-                    #     'AttributeName': 'id',
-                    #     'AttributeType': 'S'
-                    # },
+                    {
+                        'AttributeName': '_id',
+                        'AttributeType': 'S'
+                    },
                 ],
             },
             "food_moments" : {
-                'table_name': 'food_moments',
-                'key_schema': [
+                'TableName': 'food_moments',
+                'KeySchema': [
                     {
-                        'AttributeName': 'id',
+                        'AttributeName': '_id',
                         'KeyType': 'HASH'
                     },
                 ],
-                'attribute_definitions': [
+                'AttributeDefinitions': [
                     {
-                        'AttributeName': 'id',
+                        'AttributeName': '_id',
                         'AttributeType': 'S'
                     },
                 ],
             },
             "designers_flutter_test" : {
-                'table_name': 'designers_flutter_test',
-                'key_schema': [
+                'TableName': 'designers_flutter_test',
+                'KeySchema': [
                     {
-                        'AttributeName': 'id',
+                        'AttributeName': '_id',
                         'KeyType': 'HASH'
                     },
                 ],
-                'attribute_definitions': [
+                'AttributeDefinitions': [
                     {
-                        'AttributeName': 'id',
+                        'AttributeName': '_id',
                         'AttributeType': 'S'
                     },
                 ],
@@ -294,11 +501,6 @@ class DynamodbServiceBuilder(DbAbstract):
 def get_db_factory():
     factory = ObjectFactory()
     current_db_engine = current_app.config['DB_ENGINE']
-    # if current_app.config['DB_ENGINE'] == 'DYNAMO_DB':
-    #     factory.register_builder('DYNAMO_DB', DynamodbServiceBuilder())
-    # else:
-    #     current_db_engine = 'MONGO_DB'
-    #     factory.register_builder('MONGO_DB', MongodbServiceBuilder())
     factory.register_builder('DYNAMO_DB', DynamodbServiceBuilder())
     factory.register_builder('MONGO_DB', MongodbServiceBuilder())
     return factory.create(current_db_engine, app_config = current_app.config)
