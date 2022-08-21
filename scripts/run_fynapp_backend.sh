@@ -45,6 +45,7 @@ else
         #
         export FLASK_APP="fynapp_api"
         export FLASK_ENV="development"
+        export FLASK_DEBUG="1"
         export FYNAPP_DB_ENV="dev"
         export FYNAPP_DB_SERVER="fynapp-cl.q1czd.mongodb.net"
         export FYNAPP_DB_NAME="fynapp_${FYNAPP_DB_ENV}"
@@ -58,7 +59,7 @@ else
             pip install pytest coverage
             python -m pytest
         else
-            flask run
+            flask run --port 5001
             deactivate
         fi
     fi

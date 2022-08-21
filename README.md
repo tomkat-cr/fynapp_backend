@@ -43,8 +43,8 @@ flask run
 ```
 # Postman
 1. Descargar e instalar [Postman](https://www.getpostman.com/downloads/)
-2. La URI de las colecciones de Postman usada para el proyecto está en [fynapp_backend/FynApp.postman_collection.json](https://gitlab.com/tomkat-cr/fynapp_backend/-/raw/main/postman_collection.json)
+2. La URI de las colecciones de Postman usada para el proyecto está en [test/FynApp.postman_collection.json](test/FynApp.postman_collection.json)
 3. Importar colección dentro de Postman [Instrucciones](https://learning.getpostman.com/docs/postman/collections/data_formats/#exporting-and-importing-postman-data)
 
 # NOTA:
-Normalmente el backend usa el puerto 5000.
+Normalmente el backend usa el puerto 5001 en localhost.

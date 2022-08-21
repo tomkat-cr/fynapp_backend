@@ -4,7 +4,7 @@ import sys
 
 from flask import Flask
 from flask_cors import CORS, cross_origin
-from . import config
+from .config import config
 
 from .util.app_logger import log_debug, log_warning
 from .models.users import users

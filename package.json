@@ -16,7 +16,7 @@
   },
   "scripts": {
     "test": "python -m pytest",
-    "start-dev": "flask run",
+    "start-dev": "flask run --port 5001",
     "start": "sh scripts/run_server.sh"
   },
   "engines": {

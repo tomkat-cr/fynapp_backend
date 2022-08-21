@@ -10,7 +10,7 @@ install: cleanLogs
 	pipenv install
 
 cleanLogs:
-	echo "" > logs/fynapp_general.log
+	sh scripts/clean_logs.sh
 
 lockedInstall:
 	pipenv install --ignore-pipfile
@@ -25,6 +25,13 @@ clean:
 	pipenv --rm
 
 fresh: clean install
+
+# CLI Utilities
+lsof:
+	sh scripts/run_lsof.sh
+
+create_aws_config:
+	sh scripts/aws/create_aws_config.sh
 
 # Development Commands
 tests:
@@ -64,10 +71,10 @@ deploy: requirements config
 local: config cleanLogs
 	# saml2aws login -a Mediabros-Dev
 	# saml2aws exec -a Mediabros-Dev "pipenv run chalice local --port 8980"
+	# ./scripts/run_local.sh
 	sh scripts/run_fynapp_backend.sh
 
 server: local
 
 api: config cleanLogs
-	# ./scripts/run_local.sh
 	sh scripts/run_server.sh
