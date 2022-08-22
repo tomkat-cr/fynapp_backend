@@ -3,6 +3,8 @@ from bson.json_util import dumps, ObjectId
 from flask import current_app
 from werkzeug.local import LocalProxy
 import uuid
+import json
+from decimal import Decimal
   
 from pymongo import MongoClient
 
@@ -98,32 +100,66 @@ class MongodbServiceBuilder(DbAbstract):
 # ----------------------- DynamoDb  -----------------------
 
 
-class DynamoDbIdUtilities:
+DEFAULT_WRITE_CAPACITY_UNITS = 1
+DEFAULT_READ_CAPACITY_UNITS = 1
+
+class DynamoDbUtilities:
     def new_id(self):
+        """Generate mongodb styled _id
+        """
         # google: python generate unique _id like mongodb
         # https://www.geeksforgeeks.org/generating-random-ids-using-uuid-python/
-        id = uuid.uuid1()
+        # id = uuid.uuid1()
         # uuid1() includes the used of MAC address of computer, 
         # and hence can compromise the privacy, even though it provides UNIQUENES.
-        return id.hex
+        # return id.hex
+        # RESULT: bson.errors.InvalidId: '48a8b1a021b611edbf5a0e4c731ac1c1' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string | vs 6302ded424b11a2032d7c562
+        # SOLUTION: https://api.mongodb.com/python/1.11/api/bson/objectid.html
+        return str(ObjectId())
 
 
     def id_addition(self, row):
+        """Convert _id to be mongodb styled,
+           for example to send it to the react frontend
+           expecting it as a $oid
+        """
         if 'id' in row:
             row['_id'] = ObjectId(row['id'])
         elif '_id' in row and isinstance(row['_id'], str):
-            row['id'] = row['_id']
+            # row['id'] = row['_id']
             row['_id'] = ObjectId(row['_id'])
         return row
 
 
     def id_conversion(self, key_set):
+        """To avoid error working internally with mongodb styled _id
+        """
+        log_debug('\\\\\\\ id_conversion | key_set BEFORE: ' + str(key_set))
         if '_id' in key_set and not isinstance(key_set['_id'], str):
             key_set['_id'] = str(key_set['_id'])
+        log_debug('\\\\\\\ id_conversion | key_set AFTER: ' + str(key_set))
         return key_set
 
 
-class DynamoDbFindIterator(DynamoDbIdUtilities):
+    def prepare_item_with_no_floats(self, item):
+        """To be used before sending dict to DynamoDb for inserts/updates
+        """
+        return json.loads(json.dumps(item), parse_float=Decimal)
+
+
+    def remove_decimal_types(self, item):
+        """To be used before sending responses to entity
+        """
+        log_debug('====> remove_decimal_types | item BEFORE: '+str(item))
+        item = self.id_conversion(item)
+        # item = json.loads(json.dumps(item, default=str))
+        item = json.loads(json.dumps(item, default=float))
+        item = self.id_addition(item)
+        log_debug('====> remove_decimal_types | item AFTER: '+str(item))
+        return item
+
+
+class DynamoDbFindIterator(DynamoDbUtilities):
     def __init__(self, data_set):
         log_debug('>>--> DynamoDbFindIterator | __init__() | data_set: '+str(data_set))
         self._data_set = data_set
@@ -152,14 +188,17 @@ class DynamoDbFindIterator(DynamoDbIdUtilities):
     def __next__(self):
         log_debug('>>--> DynamoDbFindIterator | __next__() | self.num: '+str(self._num)+' | len(self._data_set): '+str(len(self._data_set)))
         if (not self._limit or self._num <= self._limit) and self._data_set and self._num < len(self._data_set):
-            _result = self.id_addition(self._data_set[self._num])
+            # _result = self.prepare_item_with_no_floats(self.id_addition(self._data_set[self._num]))
+            _result = self.remove_decimal_types(self.id_addition(self._data_set[self._num]))
+            log_debug('>>--> DynamoDbFindIterator | __next__() | _result: '+str(_result))
+            # _result = self.id_addition(self._data_set[self._num])
             self._num += 1
             return _result
         else:
             raise StopIteration
 
 
-class DynamoDbTableAbstract:
+class DynamoDbTableAbstract(DynamoDbUtilities):
     def __init__(self, item_structure, db_conection):
         log_debug('>>--> DynamoDbTableAbstract | __init__ | item_structure: '+str(item_structure))
         self.set_table_name(item_structure['TableName'])
@@ -202,16 +241,20 @@ class DynamoDbTableAbstract:
 
 
     def element_name(self, element_name):
-        log_debug("||--> element_name")
-        log_debug(element_name)
-        return element_name['AttributeName'] if element_name['AttributeName'] != '_id' else 'id'
+        log_debug('|||---> element_name: '+str(element_name))
+        # return element_name['AttributeName'] if element_name['AttributeName'] != '_id' else 'id'
+        return element_name['AttributeName']
 
 
-    def get_condition_expresion_values(self, keys):
-        condition_values = list(map(lambda key: {':'+key['name']: key['value']}, keys))
-        condition_expresion = ' AND '.join(
-            list(map(lambda key: '#'+key['name'] + ' = :' + key['name'], keys))
-        )
+    def get_condition_expresion_values(self, data_list, separator = ' AND '):
+        # condition_values = list(map(lambda item: list(map(lambda key: {':'+key: item[key]}, item.keys())), data_list))
+        condition_values = {}
+        for item in data_list:
+            for key in item.keys():
+                condition_values =  condition_values | {':'+key: item[key]}
+        expresion_parts = list(map(lambda item: list(map(lambda key: key + ' = :' + key, item.keys())), data_list))
+        condition_expresion = separator.join(expresion_parts[0])
+        # return condition_values[0][0], condition_expresion
         return condition_values, condition_expresion
 
 
@@ -219,24 +262,33 @@ class DynamoDbTableAbstract:
     def get_primary_keys(self, query_params):
         keys = list(filter(lambda key: query_params.get(self.element_name(key)) != None, self.get_key_schema()))
         keys = list(map(lambda key: {self.element_name(key): query_params.get(self.element_name(key))}, keys))
-        return keys
+        return keys[0] if len(keys) > 0 else None
 
 
     # Look for keys in global secondary indexes
     def get_global_secondary_indexes_keys(self, query_params):
-        keys = list(
-            filter(
-                lambda key: query_params.get(self.element_name(key)) != None, 
-                list(
-                    map(
-                        lambda key: key, 
-                        self.get_global_secondary_indexes().get("KeySchema", [])
-                    )
-                )
-            )
-        )
-        keys = list(map(lambda key: {"name": self.element_name(key), "value": query_params.get(self.element_name(key))}, keys))
-        return keys
+
+        # reduced_indexes = list(map(lambda global_index: {
+        #     global_index["IndexName"]: list(map(lambda key: self.element_name(key), global_index["KeySchema"]))
+        # }, self.get_global_secondary_indexes()))
+
+        reduced_indexes = [{
+            'name': global_index["IndexName"], 
+            'keys': list(map(lambda key: self.element_name(key), global_index["KeySchema"]))
+        } for global_index in self.get_global_secondary_indexes()]
+
+        query_keys = list(query_params.keys())
+
+        index_item = list(filter(lambda index: set(query_keys).issubset(index['keys']), reduced_indexes))
+
+        keys = None
+        index_name = None
+        if index_item:
+            index_name = index_item[0]['name']
+            keys = list(map(lambda key: {key: query_params[key]}, index_item[0]['keys']))
+
+        log_debug('|-|--> get_global_secondary_indexes_keys | keys: '+str(keys) + ' | reduced_indexes: ' + str(reduced_indexes) + ' | index_name: ' + str(index_name) + ' | query_keys: ' + str(query_keys))
+        return keys, index_name
 
 
     def generic_query(self, query_params, proyection = {}):
@@ -248,42 +300,42 @@ class DynamoDbTableAbstract:
             response = table.scan()
             return response.get('Items') if response else None
 
+        query_params = self.id_conversion(query_params)
         keys = self.get_primary_keys(query_params)
 
         if keys:
+            log_debug('===> Keys found: '+str(keys))
             response = table.get_item(
                 Key=keys
             )
             log_debug(response)
-            return response.get('Item') if response else None
+            return self.remove_decimal_types(response.get('Item')) if response else None
 
-        keys = self.get_global_secondary_indexes_keys(query_params)
+        keys, index_name = self.get_global_secondary_indexes_keys(query_params)
 
         if not keys:
-            log_debug('No keys found...')
-            keys = list(map(lambda key: {"name": key, "value": query_params.get(key)}, list(query_params.keys())))
-            condition_values, condition_expresion = self.get_condition_expresion_values(keys)
+            condition_values, condition_expresion = self.get_condition_expresion_values([query_params])
+            log_debug('No keys found... perform fullscan | condition_values: ' + str(condition_values) + ' | condition_expresion: ' + str(condition_expresion))
             response = table.scan(
                 ExpressionAttributeValues = condition_values,
                 FilterExpression = condition_expresion
             )
-            return response.get('Items')[0] if response else None
+            return self.remove_decimal_types(response.get('Items')[0]) if response else None
 
-        log_debug('===> Keys found...')
+        log_debug('===> secondary Keys found: ' + str(keys))
         log_debug(keys)
-        if len(keys) == 1:
-            response = table.query(
-                KeyConditionExpression = Key(keys[0]['name']).eq(keys[0]['value'])
-            )
-        else:
-            condition_values, condition_expresion = self.get_condition_expresion_values(keys)
-            response = table.query(
-                ExpressionAttributeValues = condition_values,
-                KeyConditionExpression = condition_expresion
-            )
+        condition_values, condition_expresion = self.get_condition_expresion_values(keys)
+        log_debug('===> secondary Keys pre query elements | condition_values: ' + str(condition_values) + ' | condition_expresion:' + str(condition_expresion))
+        response = table.query(
+            IndexName = index_name,
+            ExpressionAttributeValues = condition_values,
+            KeyConditionExpression = condition_expresion
+        )
 
         log_debug(response)
-        return response.get('Items')[0] if response else None
+        if response and len(response.get('Items', [])) > 0:
+            return self.remove_decimal_types(response.get('Items')[0])
+        return None
 
 
     # resultset['resultset'] = db.users.find({}, proyeccion).skip(int(skip)).limit(int(limit))
@@ -300,17 +352,20 @@ class DynamoDbTableAbstract:
 
     # resultset['resultset']['_id'] = str(db.users.insert_one(json).inserted_id)
     def insert_one(self, new_item):
-        log_debug('>>--> insert_one() | table: ' + self.get_table_name() + ' | new_item: ' + str(new_item))
         table = self._db_conection.Table(self.get_table_name())
-        response = {
-            'inserted_id': self.new_id()
-        }
-        new_item['_id'] = response['inserted_id']
-        result = table.put_item(
-            Item=new_item
-        )
-        log_debug(response)
-        return response if result else False
+        self.inserted_id = None
+        new_item['_id'] = self.new_id()
+        new_item = self.prepare_item_with_no_floats(new_item)
+        try:
+            result = table.put_item(
+                Item=new_item
+            )
+            self.inserted_id = new_item['_id']
+            log_debug('>>--> RESULT insert_one() | table: ' + self.get_table_name() + ' | new_item: ' + str(new_item) + ' | self.inserted_id: ' + str(self.inserted_id) + ' | result: ' + str(result))
+            return self
+        except Exception as e:
+            log_warning('insert_one: Error creating Item [IO_ERR_010]: ' + str(e))
+        return False
 
 
     # Case 1: $set
@@ -319,29 +374,38 @@ class DynamoDbTableAbstract:
     # resultset['resultset']['rows_affected'] = str(db.users.update_one({'_id': ObjectId(json[parent_key_field])}, {'$addToSet': {array_field: json[array_field]}}).modified_count)
     # Case 3: $pull
     # resultset['resultset']['rows_affected'] = str(db.users.update_one({'_id': ObjectId(json[parent_key_field])}, {'$pull': {array_field: {array_key_field: json[array_field_in_json][array_key_field]}}}).modified_count)
-    def update_one(self, key_set, update_set):
+    def update_one(self, key_set, update_set_original):
         log_debug('>>--> update_one() | table: ' + self.get_table_name() + ' | key_set: ' + str(key_set))
         table = self._db_conection.Table(self.get_table_name())
-        key_set = self.id_conversion(key_set)
-        response = {
-            'modified_count': 1
-        }
+        key_set = self.prepare_item_with_no_floats(self.id_conversion(key_set))
+        self.modified_count = None
         keys = self.get_primary_keys(key_set)
         if not keys:
+            log_warning('update_one: No partition keys found [UO_ERR_010]')
             return False
-        expression_attribute_values, update_expression = self.get_condition_expresion_values(keys)
-        result = table.update_item(
-            Key=keys,
-            UpdateExpression="SET title=:r",
-            ExpressionAttributeValues={
-                ':r': data['title']
-            },
-            ReturnValues="UPDATED_NEW"
-        )
-        log_debug(response)
-        return response if result else False
-
-
+        if '$set' in update_set_original:
+            update_set = update_set_original['$set']
+            pass
+        elif '$addToSet' in update_set_original:
+            pass
+        elif '$pull' in update_set_original:
+            pass
+        update_set = self.prepare_item_with_no_floats(update_set)
+        expression_attribute_values, update_expression = self.get_condition_expresion_values([update_set], ', ')
+        try:
+            log_debug('>>--> BEFORE update_one() | table: ' + self.get_table_name() + ' | update_set: ' + str(update_set) + ' | keys: ' + str(keys) + ' | self.modified_count: ' + str(self.modified_count) + ' | expression_attribute_values: ' + str(expression_attribute_values) + ' | update_expression: ' + str(update_expression))
+            result = table.update_item(
+                Key=keys,
+                UpdateExpression="SET " + update_expression,
+                ExpressionAttributeValues=expression_attribute_values,
+                ReturnValues="UPDATED_NEW"
+            )
+            self.modified_count = 1
+            log_debug('>>--> RESULT update_one() | table: ' + self.get_table_name() + ' | update_set: ' + str(update_set) + ' | keys: ' + str(keys) + ' | self.modified_count: ' + str(self.modified_count) + ' | expression_attribute_values: ' + str(expression_attribute_values) + ' | update_expression: ' + str(update_expression) + ' | result: ' + str(result))
+            return self
+        except Exception as e:
+            log_warning('update_one: Error ipdating Item [UO_ERR_020]: ' + str(e))
+        return False
 
 
     # resultset['resultset']['rows_affected'] = str(db.users.delete_one({'_id': ObjectId(user_id)}).deleted_count)
@@ -349,20 +413,24 @@ class DynamoDbTableAbstract:
         log_debug('>>--> delete_one() | table: ' + self.get_table_name() + ' | key_set: ' + str(key_set))
         table = self._db_conection.Table(self.get_table_name())
         key_set = self.id_conversion(key_set)
-        response = {
-            'deleted_count': 1
-        }
+        self.deleted_count = None
         keys = self.get_primary_keys(key_set)
         if not keys:
+            log_warning('delete_one: No partition keys found [DO_ERR_010]')
             return False
-        result = table.delete_item(
-            Key=keys
-        )
-        log_debug(response)
-        return response if result else False
+        try:
+            result = table.delete_item(
+                Key=keys
+            )
+            self.deleted_count = 1
+            log_debug('>>--> RESULT delete_one() | table: ' + self.get_table_name() + ' | key_set: ' + str(key_set) + ' | keys: ' + str(keys) + ' | self.deleted_count: ' + str(self.deleted_count) + ' | result: ' + str(result))
+            return self
+        except Exception as e:
+            log_warning('delete_one: Error ipdating Item [DO_ERR_020]: ' + str(e))
+        return False
 
 
-class DynamodbServiceSuper(DbAbstract, DynamoDbIdUtilities):
+class DynamodbServiceSuper(DbAbstract, DynamoDbUtilities):
     def get_db_conection(self):
         self._db = boto3.resource('dynamodb')
         self.create_table_name_propeties()
@@ -390,8 +458,8 @@ class DynamodbServiceSuper(DbAbstract, DynamoDbIdUtilities):
 
     def create_tables(self):
         default_provisioned_throughput = {
-            'ReadCapacityUnits': 1,
-            'WriteCapacityUnits': 1
+            'ReadCapacityUnits': DEFAULT_READ_CAPACITY_UNITS,
+            'WriteCapacityUnits': DEFAULT_WRITE_CAPACITY_UNITS
         }
         item_list = self.list_collections()
         for item_name in item_list:
@@ -403,7 +471,8 @@ class DynamodbServiceSuper(DbAbstract, DynamoDbIdUtilities):
                 TableName=item_name,
                 KeySchema=item_list[item_name]['KeySchema'],
                 AttributeDefinitions=item_list[item_name]['AttributeDefinitions'],
-                ProvisionedThroughput=item_list[item_name].get('provisioned_throughput', default_provisioned_throughput)
+                ProvisionedThroughput=item_list[item_name].get('provisioned_throughput', default_provisioned_throughput),
+                GlobalSecondaryIndexes=item_list[item_name].get('GlobalSecondaryIndexes', []),
             )
             # Wait until the table exists.
             table.wait_until_exists()
@@ -429,17 +498,49 @@ class DynamodbService(DynamodbServiceSuper):
                 'KeySchema': [
                     {
                         'AttributeName': '_id',
-                        'KeyType': 'RANGE'
+                        'KeyType': 'HASH'
                     }
                 ],
-                'GlobalSecondaryIndexes': {
-                    'KeySchema': [
-                        {
-                            'AttributeName': 'email',
-                            'KeyType': 'HASH'
+                'GlobalSecondaryIndexes': [
+                    {
+                        'KeySchema': [
+                            {
+                                'AttributeName': 'email',
+                                'KeyType': 'HASH'
+                            },
+                        ],
+                        "IndexName": "Email-index",
+                        "Projection": {
+                            "ProjectionType": "ALL"
                         },
-                    ],
-                },
+                        "ProvisionedThroughput": {
+                            # "NumberOfDecreasesToday": 0,
+                            "ReadCapacityUnits": DEFAULT_READ_CAPACITY_UNITS,
+                            "WriteCapacityUnits": DEFAULT_WRITE_CAPACITY_UNITS,
+                        },
+                    },
+                    # {
+                    #     'KeySchema': [
+                    #         {
+                    #             'AttributeName': '_id',
+                    #             'KeyType': 'HASH'
+                    #         },
+                    #         {
+                    #             'AttributeName': 'email',
+                    #             'KeyType': 'RANGE'
+                    #         },
+                    #     ],
+                    #     "IndexName": "Email-index-2",
+                    #     "Projection": {
+                    #         "ProjectionType": "ALL"
+                    #     },
+                    #     "ProvisionedThroughput": {
+                    #         # "NumberOfDecreasesToday": 0,
+                    #         "ReadCapacityUnits": DEFAULT_READ_CAPACITY_UNITS,
+                    #         "WriteCapacityUnits": DEFAULT_WRITE_CAPACITY_UNITS,
+                    #     },
+                    # },
+                ],
                 'AttributeDefinitions': [
                     {
                         'AttributeName': 'email',
