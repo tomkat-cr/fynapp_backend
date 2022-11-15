@@ -3,9 +3,9 @@ from flask_cors import cross_origin
 import json
 
 from . import db
-from fynapp_api.util.app_logger import log_debug
-from fynapp_api.util.jwt import token_required, token_encode
-from fynapp_api.util.utilities import return_resultset_jsonified_or_exception, get_default_resultset
+from util.app_logger import log_debug
+from util.jwt import token_required, token_encode
+from util.utilities import return_resultset_jsonified_or_exception, get_default_resultset
 
 
 bp = Blueprint('food_moments', __name__, url_prefix='/food_moments')

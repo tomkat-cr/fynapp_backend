@@ -21,7 +21,7 @@ requires = (
         "packaging==21.0",
         "pluggy==1.0.0",
         "py==1.10.0",
-        "pycairo==1.20.1",
+        # "pycairo==1.20.1",
         "pycparser==2.20",
         "PyJWT==2.3.0",
         "pymongo==4.0.1",
@@ -40,7 +40,7 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(
-    name = "FynApp `Backend",
+    name = "FynApp Backend",
     # version = "0.1.1",
     version=read('version.txt'),
     author = "Carlos J. Ramirez MEDIABROS",

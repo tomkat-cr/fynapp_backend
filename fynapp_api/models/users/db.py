@@ -1,10 +1,10 @@
 from bson.json_util import dumps, ObjectId
 from itertools import islice
 
-from fynapp_api.util.app_logger import log_debug, log_warning
-from fynapp_api.util.utilities import check_email, standard_error_return, get_standard_base_exception_msg, current_datetime_timestamp, get_default_resultset
-from fynapp_api.util.db_helpers import db
-from fynapp_api.util.passwords import encrypt_password
+from util.app_logger import log_debug, log_warning
+from util.utilities import check_email, standard_error_return, get_standard_base_exception_msg, current_datetime_timestamp, get_default_resultset
+from util.db_helpers import db
+from util.passwords import encrypt_password
 
 # ...
 # ...

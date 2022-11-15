@@ -7,9 +7,9 @@ import jwt
 import datetime
 from functools import wraps
 
-# from fynapp_api.util.app_logger import log_debug, log_warning
-from fynapp_api.util.utilities import standard_error_return
-from fynapp_api.models.users.db import get_user_id_as_string
+# from util.app_logger import log_debug, log_warning
+from util.utilities import standard_error_return
+from models.users.db import get_user_id_as_string
 
 
 # ----------------------- JWT -----------------------

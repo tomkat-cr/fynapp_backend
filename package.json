@@ -6,10 +6,10 @@
   "license": "Private",
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/tomkat-cr/fynapp_backend.git"
+    "url": "git+https://github.com/tomkat-cr/fynapp_backend.git"
   },
   "bugs": {
-    "url": "https://gitlab.com/tomkat-cr/fynapp_backend/issues"
+    "url": "https://github.com/tomkat-cr/fynapp_backend/issues"
   },
   "directories": {
     "test": "test"

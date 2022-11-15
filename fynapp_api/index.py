@@ -4,11 +4,11 @@ import sys
 
 from flask import Flask
 from flask_cors import CORS, cross_origin
-from .config import config
+from config import config
 
-from .util.app_logger import log_debug, log_warning
-from .models.users import users
-from .models.food_moments import food_moments
+from util.app_logger import log_debug, log_warning
+from models.users import users
+from models.food_moments import food_moments
 
 
 def create_app(test_config=None):
@@ -39,3 +39,6 @@ def create_app(test_config=None):
     log_debug( '>>--> BluePrints registered...' )
 
     return app
+
+
+app = create_app()

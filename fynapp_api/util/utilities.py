@@ -5,7 +5,7 @@ import sys, traceback
 from flask import jsonify, make_response
 from flask_cors import CORS, cross_origin
 
-from fynapp_api.util.app_logger import log_warning, log_debug
+from util.app_logger import log_warning, log_debug
 
 
 # Regular expression for validating an Email

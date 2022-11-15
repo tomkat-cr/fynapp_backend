@@ -1,0 +1,16 @@
+{
+    "version": 2,
+    "installCommand": "yum install cairo-devel",
+    "builds": [
+        {
+            "src": "index.py",
+            "use": "@vercel/python"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "/"
+        }
+    ]
+}
