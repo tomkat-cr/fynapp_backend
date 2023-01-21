@@ -27,3 +27,4 @@ fynapp_api/include
 fynapp_api/lib
 fynapp_api/pyvenv.cfg
 fynapp_api/logs/fynapp_general.log
+fynapp_api/var

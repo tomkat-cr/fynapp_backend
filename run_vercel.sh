@@ -20,6 +20,9 @@ fi
 if [ "$1" = "deploy_prod" ]; then
     vercel --prod ;
 fi
+if [ "$1" = "rename_staging" ]; then
+    vercel alias $2 fynapp-staging-tomkat-cr.vercel.app
+fi
 if [[ "$1" = "" || "$1" = "vercel" ]]; then
     vercel dev --listen 0.0.0.0:5001 ;
 fi
