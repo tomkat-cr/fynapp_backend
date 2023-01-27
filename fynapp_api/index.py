@@ -3,12 +3,12 @@ import logging
 import sys
 
 from flask import Flask
-from flask_cors import CORS, cross_origin
-from config import config
+from flask_cors import CORS  # , cross_origin
 
-from util.app_logger import log_debug, log_warning
-from models.users import users
-from models.food_moments import food_moments
+from .config import config
+from .util.app_logger import log_debug  # , log_warning
+from .models.users import users
+from .models.food_moments import food_moments
 
 
 def create_app(test_config=None):
@@ -33,10 +33,10 @@ def create_app(test_config=None):
     app.logger.setLevel(logging.ERROR)
 
     # Register the BluePrints
-    log_debug( '>>--> Register the BluePrints...' )
+    log_debug('>>--> Register the BluePrints...')
     app.register_blueprint(users.bp)
     app.register_blueprint(food_moments.bp)
-    log_debug( '>>--> BluePrints registered...' )
+    log_debug('>>--> BluePrints registered...')
 
     return app
 

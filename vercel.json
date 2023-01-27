@@ -1,16 +1,16 @@
 {
     "version": 2,
-    "installCommand": "yum install cairo-devel",
+    "outputDirectory": "src",
     "builds": [
         {
-            "src": "index.py",
+            "src": "fynapp_api/*.py",
             "use": "@vercel/python"
         }
     ],
     "routes": [
         {
             "src": "/(.*)",
-            "dest": "/"
+            "dest": "fynapp_api/index.py"
         }
     ]
 }
