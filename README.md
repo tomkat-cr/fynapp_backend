@@ -29,7 +29,7 @@ Asegurate de reemplazar el valor de FYNAPP_DB_URI por la URI de tu cluster en Mo
 Para los ambientes de produccion, estas variables se deben asignar en un archivo .env
 ```
 export FYNAPP_SECRET_KEY="secret"
-export FLASK_APP="fynapp_api"
+export FLASK_APP="chalicelib"
 export FLASK_ENV="development"
 export FYNAPP_DB_ENV="dev"
 export FYNAPP_DB_SERVER="xxxxxxx"

@@ -1,2 +1,2 @@
-recursive-include fynapp_api/templates *
+recursive-include chalicelib/templates *
 recursive-include yourapplication/static *

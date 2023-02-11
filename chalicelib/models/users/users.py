@@ -2,12 +2,12 @@ from flask import Blueprint, request, current_app
 from flask_cors import cross_origin
 import json
 
-from . import db
-from fynapp_api.util import db_helpers
-from fynapp_api.util.app_logger import log_debug
-from fynapp_api.util.jwt import token_required, token_encode
-from fynapp_api.util.passwords import verify_password, encrypt_password
-from fynapp_api.util.utilities import return_resultset_jsonified_or_exception, get_default_resultset
+from chalicelib.util.db_helpers import db, test_connection
+from chalicelib.util.app_logger import log_debug
+from chalicelib.util.jwt import token_required, token_encode
+from chalicelib.util.passwords import verify_password, encrypt_password
+from chalicelib.util.utilities import \
+    return_resultset_jsonified_or_exception, get_default_resultset
 
 
 bp = Blueprint('users', __name__, url_prefix='/users')
@@ -25,39 +25,41 @@ def users_crud():
 
     if request.method == 'POST':
         # Create one user / Crear un user
-        log_debug( 'CU-1) CREATE user | request_body: {}'.format(request_body) )
+        log_debug('CU-1) CREATE user | request_body: {}'.format(request_body))
         result = db.create_user(request_body)
-        log_debug( 'CU-2) Create user | result: {}'.format(result) )
+        log_debug('CU-2) Create user | result: {}'.format(result))
         return return_resultset_jsonified_or_exception(result)
 
     elif request.method == 'PUT':
         # Update one user's data / Actualizar datos del user
-        log_debug( 'UU-1) UPDATE user | request_body: {}'.format(request_body) )
+        log_debug('UU-1) UPDATE user | request_body: {}'.format(request_body))
         result = db.update_users(request_body)
-        log_debug( 'UU-2) Update user | result: {}'.format(result) )
+        log_debug('UU-2) Update user | result: {}'.format(result))
         return return_resultset_jsonified_or_exception(result)
 
     elif request.method == 'DELETE' and user_id is not None:
         # Delete an user by _id / Borrar un user usando el _id
-        log_debug( 'DU-1) DELETE user | user_id: {}'.format(user_id) )
+        log_debug('DU-1) DELETE user | user_id: {}'.format(user_id))
         result = db.delete_user(user_id)
-        log_debug( 'DU-2) Delete user | result: {}'.format(result) )
+        log_debug('DU-2) Delete user | result: {}'.format(result))
         return return_resultset_jsonified_or_exception(result)
 
     elif user_id is not None:
         # Get one user by _id / Obtener users por _id
-        log_debug( 'GO-1) user by id: {}'.format(user_id) )
+        log_debug('GO-1) user by id: {}'.format(user_id))
         result = db.fetch_user(user_id)
-        log_debug( 'GO-2) user by id: {} | result: {}'.format(user_id, result) )
+        log_debug('GO-2) user by id: {} | result: {}'.format(user_id, result))
         return return_resultset_jsonified_or_exception(result)
 
     else:
         # Fetch user's list / Obtener lista de users
         skip = (skip, 0)[skip is None]
         limit = (limit, 10)[limit is None]
-        log_debug( 'GA-1) users list | skip: {} | limit: {}'.format(skip, limit) )
+        log_debug('GA-1) users list | skip: {} | limit: {}'.format(
+            skip, limit
+        ))
         result = db.fetch_users_list(skip, limit)
-        log_debug( 'GA-2) users list | result {}'.format(result) )
+        log_debug('GA-2) users list | result {}'.format(result))
         return return_resultset_jsonified_or_exception(result)
 
 
@@ -78,7 +80,7 @@ def food_times_crud():
     array_child_id_value = request.args.get(array_child_id_element)
     # food_time = request.args.get('food_time')
     filters = {}
-    if array_child_id_value != None:
+    if array_child_id_value is not None:
         filters[array_child_id_element] = array_child_id_value
     # if food_time != None:
     #     filters['food_time'] = food_time
@@ -86,13 +88,13 @@ def food_times_crud():
     # Create
     if request.method == 'POST':
 
-        log_debug( '>>> food_times_crud | PUT request_body = {}'.format(request_body) )
+        log_debug('>>> food_times_crud | PUT request_body = {}'.format(request_body))
         return return_resultset_jsonified_or_exception(db.add_food_times_to_user(request_body))
-    
+
     # Delete
     if request.method == 'DELETE':
 
-        log_debug( '>>> food_times_crud | DELETE request_body = {}'.format(request_body) )
+        log_debug('>>> food_times_crud | DELETE request_body = {}'.format(request_body))
         return return_resultset_jsonified_or_exception(db.remove_food_times_to_user(request_body))
 
     # List
@@ -105,7 +107,7 @@ def food_times_crud():
     if request.method == 'PUT':
 
         # When one element needs to bee modified, first remove it, then add it again
-        log_debug( '>>> food_times_crud | POST request_body = {}'.format(request_body) )
+        log_debug('>>> food_times_crud | POST request_body = {}'.format(request_body))
         remove_operation_result = db.remove_food_times_to_user(request_body)
         if remove_operation_result['error']:
             return return_resultset_jsonified_or_exception(remove_operation_result)
@@ -140,13 +142,13 @@ def user_history_crud():
     # Create
     if request.method == 'POST':
 
-        log_debug( '>>> user_history_crud | PUT request_body = {}'.format(request_body) )
+        log_debug('>>> user_history_crud | PUT request_body = {}'.format(request_body))
         return return_resultset_jsonified_or_exception(db.add_user_history_to_user(request_body))
-    
+
     # Delete
     if request.method == 'DELETE':
 
-        log_debug( '>>> user_history_crud | DELETE request_body = {}'.format(request_body) )
+        log_debug('>>> user_history_crud | DELETE request_body = {}'.format(request_body))
         return return_resultset_jsonified_or_exception(db.remove_user_history_to_user(request_body))
 
     # List
@@ -159,7 +161,7 @@ def user_history_crud():
     if request.method == 'PUT':
 
         # When one element needs to bee modified, first remove it, then add it again
-        log_debug( '>>> user_history_crud | POST request_body = {}'.format(request_body) )
+        log_debug('>>> user_history_crud | POST request_body = {}'.format(request_body))
         remove_operation_result = db.remove_user_history_to_user(request_body)
         if remove_operation_result['error']:
             return return_resultset_jsonified_or_exception(remove_operation_result)
@@ -169,21 +171,23 @@ def user_history_crud():
 @bp.route('/test')
 @token_required
 @cross_origin(supports_credentials=True)
-def test_connection():
+def test_connection_handler():
     result = get_default_resultset()
-    result['resultset']['collections'] = json.loads(db_helpers.test_connection())
+    result['resultset']['collections'] = json.loads(test_connection())
     return return_resultset_jsonified_or_exception(result)
 
 
-@bp.route('/login', methods=['GET', 'POST'])  
+@bp.route('/login', methods=['GET', 'POST'])
 @cross_origin(supports_credentials=True)
-def login_user(): 
+def login_user():
     result = get_default_resultset()
 
     auth = request.authorization
-    # log_debug( 'login_user | request: {}'.format(request) )
-    # log_debug( 'login_user | auth: {}'.format(auth) )
-    if not auth or not auth.username or not auth.password:  
+
+    log_debug('login_user | request: {}'.format(request))
+    log_debug('login_user | auth: {}'.format(auth))
+
+    if not auth or not auth.username or not auth.password:
         result['error_message'] = 'could not verify [L1]'
         return return_resultset_jsonified_or_exception(result)
 
@@ -191,13 +195,13 @@ def login_user():
     if user['error']:
         return return_resultset_jsonified_or_exception(user)
 
-    # log_debug( 'login_user | user[resultset]: {}'.format(user) )
+    log_debug('login_user | user[resultset]: {}'.format(user))
 
     if user['resultset']:
-        if verify_password(user['resultset']['passcode'], auth.password):  
+        if verify_password(user['resultset']['passcode'], auth.password):
             token = token_encode(user['resultset'])
             result['resultset'] = {
-                'token' : token,
+                'token': token,
                 '_id': db.get_user_id_as_string(user['resultset']),
                 'firstname': user['resultset']['firstname'],
                 'lastname': user['resultset']['lastname'],
@@ -209,7 +213,7 @@ def login_user():
     else:
         result['error_message'] = 'could not verify [L2]'
 
-    log_debug( 'login_user | FINAL result: {}'.format(result) )
+    log_debug('login_user | FINAL result: {}'.format(result))
 
     return return_resultset_jsonified_or_exception(result)
 
@@ -231,7 +235,7 @@ def password_encripted():
     return return_resultset_jsonified_or_exception(result)
 
 
-@bp.route('/supad-create', methods=['POST'])  
+@bp.route('/supad-create', methods=['POST'])
 def super_admin_create():
     result = get_default_resultset()
 
@@ -287,30 +291,30 @@ def designers_flutter_test_crud():
 
     # if request.method == 'POST':
     #     # Create one user / Crear un user
-    #     log_debug( 'CU-1) CREATE user | request_body: {}'.format(request_body) )
+    #     log_debug('CU-1) CREATE user | request_body: {}'.format(request_body))
     #     result = db.create_user(request_body)
-    #     log_debug( 'CU-2) Create user | result: {}'.format(result) )
+    #     log_debug('CU-2) Create user | result: {}'.format(result) )
     #     return return_resultset_jsonified_or_exception(result)
 
     # elif request.method == 'PUT':
     #     # Update one user's data / Actualizar datos del user
-    #     log_debug( 'UU-1) UPDATE user | request_body: {}'.format(request_body) )
+    #     log_debug('UU-1) UPDATE user | request_body: {}'.format(request_body))
     #     result = db.update_users(request_body)
-    #     log_debug( 'UU-2) Update user | result: {}'.format(result) )
+    #     log_debug('UU-2) Update user | result: {}'.format(result))
     #     return return_resultset_jsonified_or_exception(result)
 
     # elif request.method == 'DELETE' and user_id is not None:
     #     # Delete an user by _id / Borrar un user usando el _id
-    #     log_debug( 'DU-1) DELETE user | user_id: {}'.format(user_id) )
+    #     log_debug('DU-1) DELETE user | user_id: {}'.format(user_id))
     #     result = db.delete_user(user_id)
-    #     log_debug( 'DU-2) Delete user | result: {}'.format(result) )
+    #     log_debug('DU-2) Delete user | result: {}'.format(result))
     #     return return_resultset_jsonified_or_exception(result)
 
     # elif user_id is not None:
     #     # Get one user by _id / Obtener users por _id
-    #     log_debug( 'GO-1) user by id: {}'.format(user_id) )
+    #     log_debug('GO-1) user by id: {}'.format(user_id) )
     #     result = db.fetch_user(user_id)
-    #     log_debug( 'GO-2) user by id: {} | result: {}'.format(user_id, result) )
+    #     log_debug('GO-2) user by id: {} | result: {}'.format(user_id, result))
     #     return return_resultset_jsonified_or_exception(result)
 
     # else:
@@ -318,7 +322,7 @@ def designers_flutter_test_crud():
         # Fetch designers_flutter_test's list / Obtener lista de users
         skip = (skip, 0)[skip is None]
         limit = (limit, 10)[limit is None]
-        log_debug( 'GA-1) designers_flutter_test list | skip: {} | limit: {}'.format(skip, limit) )
+        log_debug('GA-1) designers_flutter_test list | skip: {} | limit: {}'.format(skip, limit))
         result = db.fetch_designers_flutter_test_list(skip, limit)
-        log_debug( 'GA-2) designers_flutter_test list | result {}'.format(result) )
+        log_debug('GA-2) designers_flutter_test list | result {}'.format(result))
         return return_resultset_jsonified_or_exception(result)

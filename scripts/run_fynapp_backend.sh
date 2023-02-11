@@ -43,7 +43,7 @@ else
         # exit 1
     else
         #
-        export FLASK_APP="fynapp_api"
+        export FLASK_APP="chalicelib"
         export FLASK_ENV="development"
         export FLASK_DEBUG="1"
         export FYNAPP_DB_ENV="dev"

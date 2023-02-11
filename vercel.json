@@ -3,14 +3,14 @@
     "outputDirectory": "src",
     "builds": [
         {
-            "src": "fynapp_api/*.py",
+            "src": "chalicelib/index.py",
             "use": "@vercel/python"
         }
     ],
     "routes": [
         {
             "src": "/(.*)",
-            "dest": "fynapp_api/index.py"
+            "dest": "chalicelib/index.py"
         }
     ]
 }

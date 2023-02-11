@@ -20,12 +20,13 @@ report.xml
 logs/fynapp_general.log
 dump/
 
-# For the vercel deployment because `venv` will br replaced by `fynapp_api` directory.
-fynapp_api/bin
-fynapp_api/include
-fynapp_api/lib
-fynapp_api/pyvenv.cfg
-fynapp_api/logs/fynapp_general.log
-fynapp_api/var
+# For the vercel deployment, because `venv` will be replaced by `chalicelib` directory.
+chalicelib/bin
+chalicelib/include
+chalicelib/instance
+chalicelib/lib
+chalicelib/pyvenv.cfg
+chalicelib/logs/fynapp_general.log
+chalicelib/var
 
 .vercel

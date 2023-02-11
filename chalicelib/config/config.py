@@ -16,7 +16,7 @@ class Config(object):
     DB_ENGINE = os.environ['FYNAPP_DB_ENGINE']
 
     FYNAPP_SECRET_KEY = os.environ['FYNAPP_SECRET_KEY']
-    FYNAPP_SUPERADMIN_EMAIL = os.environ.get('FYNAPP_SUPERADMIN_EMAIL', 'super@fynapp.com')
+    FYNAPP_SUPERADMIN_EMAIL = os.environ.get('FYNAPP_SUPERADMIN_EMAIL')
 
 
 class DevelopmentConfig(Config):

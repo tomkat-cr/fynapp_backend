@@ -3,8 +3,8 @@
 
 FROM python:3.9
 
-ARG FLASK_APP=fynapp_api
-ARG FLASK_ENV=fynapp_api
+ARG FLASK_APP=chalicelib
+ARG FLASK_ENV=chalicelib
 ARG FLASK_DEBUG=0
 ARG FYNAPP_DB_NAME=fynapp_dev
 ARG FYNAPP_DB_URI
@@ -18,8 +18,8 @@ COPY . .
 # RUN ls -la
 
 RUN sh -x ./scripts/docker_install_deps.sh
-RUN mkdir ./logs
-RUN echo "" > ./logs/fynapp_general.log
+# RUN mkdir ./logs
+# RUN echo "" > ./logs/fynapp_general.log
 RUN pipenv install --deploy --system
 
 EXPOSE 5000

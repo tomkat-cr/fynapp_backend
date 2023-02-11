@@ -4,12 +4,12 @@ import sys
 import traceback
 
 from flask import jsonify, make_response
-from flask_cors import cross_origin  # , CORS
+from flask_cors import cross_origin
 
-from .app_logger import log_warning, log_debug
+from chalicelib.util.app_logger import log_warning, log_debug
 
 
-# Regular expression for validating an Email
+# Email validation regular expression
 email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 
 

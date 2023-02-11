@@ -1,10 +1,10 @@
 from flask import Blueprint, request
 from flask_cors import cross_origin
 
-from . import db
-from fynapp_api.util.app_logger import log_debug
-from fynapp_api.util.jwt import token_required
-from fynapp_api.util.utilities import return_resultset_jsonified_or_exception
+from chalicelib.util.db_helpers import db
+from chalicelib.util.app_logger import log_debug
+from chalicelib.util.jwt import token_required
+from chalicelib.util.utilities import return_resultset_jsonified_or_exception
 
 
 bp = Blueprint('food_moments', __name__, url_prefix='/food_moments')

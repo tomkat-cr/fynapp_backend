@@ -1,12 +1,12 @@
 from bson.json_util import dumps, ObjectId
 from itertools import islice
 
-from fynapp_api.util.app_logger import log_debug  # , log_warning
-from fynapp_api.util.utilities import check_email, \
+from chalicelib.util.app_logger import log_debug  # , log_warning
+from chalicelib.util.utilities import check_email, \
     get_standard_base_exception_msg, \
     current_datetime_timestamp, get_default_resultset
-from fynapp_api.util.db_helpers import db
-from fynapp_api.util.passwords import encrypt_password
+from chalicelib.util.db_helpers import db
+from chalicelib.util.passwords import encrypt_password
 
 # ...
 # ...

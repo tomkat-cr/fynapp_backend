@@ -8,8 +8,8 @@ import datetime
 from functools import wraps
 
 # from util.app_logger import log_debug, log_warning
-from .utilities import standard_error_return
-from fynapp_api.models.users.db import get_user_id_as_string
+from chalicelib.util.utilities import standard_error_return
+from chalicelib.models.users.db import get_user_id_as_string
 
 
 # ----------------------- JWT -----------------------
@@ -51,8 +51,8 @@ def token_encode(user):
     token = jwt.encode(
         {
             'public_id': get_user_id_as_string(user),
-            'exp': 
-                datetime.datetime.utcnow() + 
+            'exp':
+                datetime.datetime.utcnow() +
                 datetime.timedelta(minutes=EXPIRATION_MINUTES)
         },
         current_app.config['FYNAPP_SECRET_KEY'],

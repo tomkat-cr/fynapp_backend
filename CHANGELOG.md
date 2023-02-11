@@ -16,16 +16,44 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ### Breaks
 
 
-## 0.1.3 (2022-08-18)
+## 0.1.6 (2023-02-10)
 ---
 
 ### New
+"verify_required_fields" function introduced to have a unified and normalized way to verify mandatory fields.
+".env-example" introduced.
 
 ### Changes
+FA-67 - "fynapp_api" directory renamed to "chalicelib" to prepare AWS migration.
+"models/dynamodb_table_structures.py" separated to isolate specific dynamoDb table specs from "util/db_helpers.py"
+"logs" directory removed.
 
 ### Fixes
+Default value for FYNAPP_SUPERADMIN_EMAIL removed.
+Began Flake8 code formatting fixes.
+"from ." replaced by a "from chalicelib." to avoid "ImportError: attempted relative import with no known parent package" error.
 
-### Breaks
+
+## 0.1.5 (2022-11-14)
+---
+
+### New
+Fix: deploy to vercel as serverless backend
+
+
+## 0.1.4 (2022-08-21)
+---
+
+### New
+Add: DynamoDb create table/find_one functionality
+applying factory method design pattern
+
+
+## 0.1.3 (2022-03-19)
+---
+
+### Fixes
+Fix the user_history CRUD the be compatible and usable as food_moments. food_times_crud and user_history_crud are more generic because now uses variables for the array elements names. FA-6
 
 
 ## 0.1.2 (2022-03-16)

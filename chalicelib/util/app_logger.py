@@ -4,6 +4,7 @@ import logging.config
 import yaml
 import datetime
 
+
 DEBUG = (os.environ.get('FLASK_DEBUG', '0') == '1')
 
 LOG_CONFIG_FILE = './config/logging.conf.yml'
@@ -36,7 +37,12 @@ if not read_only_file_system:
 def log_debug(message):
     if DEBUG:
         if read_only_file_system:
-            print("[DEBUG] {} | {}".format(datetime.datetime.now(), message))
+            print("[DEBUG][{}] {} | {}".format(
+                    os.environ['FYNAPP_DB_NAME'],
+                    datetime.datetime.now(),
+                    message
+                )
+            )
         else:
             logconsole.debug(message)
 

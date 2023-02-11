@@ -3,12 +3,12 @@ import logging
 import sys
 
 from flask import Flask
-from flask_cors import CORS  # , cross_origin
+from flask_cors import CORS
 
-from .config import config
-from .util.app_logger import log_debug  # , log_warning
-from .models.users import users
-from .models.food_moments import food_moments
+from chalicelib.config.config import config
+from chalicelib.util.app_logger import log_debug
+from chalicelib.models.users import users
+from chalicelib.models.food_moments import food_moments
 
 
 def create_app(test_config=None):

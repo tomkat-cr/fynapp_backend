@@ -2,17 +2,14 @@ from __future__ import annotations
 from bson.json_util import dumps, ObjectId
 from flask import current_app
 from werkzeug.local import LocalProxy
-# import uuid
-import json
 from decimal import Decimal
+import json
 
 from pymongo import MongoClient
-
 import boto3
-# from boto3.dynamodb.conditions import Key
 
-from .app_logger import log_debug, log_warning
-from fynapp_api.models.dynamodb_table_structures \
+from chalicelib.util.app_logger import log_debug, log_warning
+from chalicelib.models.dynamodb_table_structures \
     import dynamodb_table_structures, \
     DEFAULT_WRITE_CAPACITY_UNITS, DEFAULT_READ_CAPACITY_UNITS
 
@@ -646,3 +643,26 @@ db = LocalProxy(get_db_engine)
 
 def test_connection():
     return db_factory.test_connection()
+
+
+# DB utilities
+
+
+def verify_required_fields(fields, required_fields, error_code):
+    resultset = dict({
+        'error': False,
+        'error_message': '',
+        'resultset': dict()
+    })
+    for element in required_fields:
+        if element not in fields:
+            resultset['error_message'] = '{}{}{}'.format(
+                resultset['error_message'],
+                ', ' if resultset['error_message'] != '' else '',
+                element
+            )
+    if resultset['error_message']:
+        resultset['error_message'] = 'Missing mandatory elements:' + \
+            f" {resultset['error_message']} [{error_code}]."
+        resultset['error'] = True
+    return resultset
