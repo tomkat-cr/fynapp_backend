@@ -35,8 +35,7 @@ create_aws_config:
 
 # Development Commands
 tests:
-	# pipenv run pytest tests --junitxml=report.xml
-	sh scripts/run_fynapp_backend_tests.sh
+	pipenv run pytest tests --junitxml=report.xml
 
 test: tests
 
@@ -66,15 +65,16 @@ config:
 	# pipenv run chalice_config
 
 deploy: requirements config
-	# pipenv run chalice deploy --stage api
+	pipenv run chalice deploy --stage api
 
 local: config cleanLogs
 	# saml2aws login -a Mediabros-Dev
 	# saml2aws exec -a Mediabros-Dev "pipenv run chalice local --port 8980"
 	# ./scripts/run_local.sh
-	sh scripts/run_fynapp_backend.sh
+	sh run_aws.sh
 
 server: local
 
 api: config cleanLogs
-	sh scripts/run_server.sh
+	# sh scripts/run_server.sh
+	sh run_aws.sh

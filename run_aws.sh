@@ -3,8 +3,8 @@
 # 2023-02-02 | CR
 #
 APP_DIR='chalicelib'
-PYTHON3_EXEC='/usr/local/bin/python3.9'
 AWS_STACK_NAME='fynapp-be-stack'
+PYTHON3_EXEC='/usr/local/bin/python3.9'
 ENV_FILESPEC=""
 if [ -f "./.env" ]; then
     ENV_FILESPEC="./.env"

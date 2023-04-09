@@ -1,0 +1,25 @@
+{
+    "version": "2.0",
+    "app_name": "mediabros-apis",
+    "environment_variables": {
+      "FLASK_APP": "FLASK_APP_placeholder",
+      "FLASK_DEBUG": "FLASK_DEBUG_placeholder",
+      "FLASK_ENV": "FLASK_ENV_placeholder",
+      "FYNAPP_SECRET_KEY": "FYNAPP_SECRET_KEY_placeholder",
+      "FYNAPP_SUPERADMIN_EMAIL": "FYNAPP_SUPERADMIN_EMAIL_placeholder",
+      "FYNAPP_DB_ENGINE": "FYNAPP_DB_ENGINE_placeholder",
+      "FYNAPP_DB_NAME": "FYNAPP_DB_NAME_placeholder",
+      "FYNAPP_DB_URI": "FYNAPP_DB_URI_placeholder"
+    },
+    "stages": {
+      "dev": {
+        "api_gateway_stage": "api",
+        "autogen_policy": false
+      },
+      "prod": {
+        "api_gateway_stage": "api",
+        "autogen_policy": false
+      }
+    }
+  }
+  

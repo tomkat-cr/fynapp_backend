@@ -16,6 +16,13 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ### Breaks
 
 
+## 0.1.7 (2023-02-11)
+---
+
+### New
+FA-67 - AWS migration to run as a serverless Lambda.
+
+
 ## 0.1.6 (2023-02-10)
 ---
 

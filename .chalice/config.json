@@ -1,0 +1,24 @@
+{
+  "version": "2.0",
+  "app_name": "mediabros-apis",
+  "environment_variables": {
+    "FLASK_APP": "app.py",
+    "FLASK_DEBUG": "1",
+    "FLASK_ENV": "development",
+    "FYNAPP_SECRET_KEY": "S0loPOrh0y17.301021",
+    "FYNAPP_SUPERADMIN_EMAIL": "super@fynapp.com",
+    "FYNAPP_DB_ENGINE": "MONGO_DB",
+    "FYNAPP_DB_NAME": "fynapp_dev",
+    "FYNAPP_DB_URI": "mongodb+srv://fynapp-admin:14831dlTL5NrkXqf@fynapp-cl.q1czd.mongodb.net"
+  },
+  "stages": {
+    "dev": {
+      "api_gateway_stage": "api-dev",
+      "autogen_policy": false
+    },
+    "prod": {
+      "api_gateway_stage": "api",
+      "autogen_policy": false
+    }
+  }
+}
