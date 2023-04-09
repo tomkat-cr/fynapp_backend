@@ -3,7 +3,7 @@
     "outputDirectory": "src",
     "builds": [
         {
-            "src": "fynapp_api/*.py",
+            "src": "fynapp_api/index.py",
             "use": "@vercel/python"
         }
     ],

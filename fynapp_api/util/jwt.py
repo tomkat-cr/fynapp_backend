@@ -14,7 +14,8 @@ from fynapp_api.models.users.db import get_user_id_as_string
 
 # ----------------------- JWT -----------------------
 
-HEADER_TOKEN_ENTRY_NAME = 'x-access-tokens'
+# HEADER_TOKEN_ENTRY_NAME = 'x-access-tokens'
+HEADER_TOKEN_ENTRY_NAME = 'Authorization'
 EXPIRATION_MINUTES = 30
 
 
@@ -27,6 +28,7 @@ def token_required(f):
         # )
         if HEADER_TOKEN_ENTRY_NAME in request.headers:
             token = request.headers[HEADER_TOKEN_ENTRY_NAME]
+            token = token.replace('Bearer ', '')
         if not token:
             return standard_error_return('a valid token is missing')
         # log_debug(

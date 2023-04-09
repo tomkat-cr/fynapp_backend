@@ -32,6 +32,7 @@ if [[ "$1" = "" || "$1" = "vercel" ]]; then
 fi
 if [ "$1" = "clean" ]; then
     echo "Cleaning..."
+    cd fynapp_api
     deactivate ;
     rm -rf __pycache__ ;
     rm -rf bin ;
